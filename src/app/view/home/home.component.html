@@ -1,0 +1,135 @@
+
+  <!-- ======= Mobile nav toggle button ======= -->
+  <i class="bi bi-list mobile-nav-toggle d-lg-none"></i>
+  <!-- ======= Header ======= -->
+  <header id="header" class="d-flex flex-column justify-content-center">
+
+    <nav id="navbar" class="navbar nav-menu">
+      <ul>
+        <li><a [routerLink]="['']" class="nav-link scrollto active"><i class="bx bx-home"></i> <span
+              class="mt-1">หน้าแรก</span></a></li>
+        <li><a [routerLink]="['/timeline']" class="nav-link scrollto"><i class="bx bx-map-alt"></i> <span
+              class="mt-1">จัดทริป</span></a></li>
+        <li><a href="#resume" class="nav-link scrollto"><i class="bx bx-star"></i> <span
+              class="mt-1">ทริปยอดนิยม</span></a></li>
+      </ul>
+    </nav>
+    <!-- .nav-menu -->
+
+  </header>
+  <!-- End Header -->
+
+  <nav class="navbar navbar-light bg-white" style="padding-left: 100px;padding-top: 30px;padding-bottom: 30px;">
+    <a class="navbar-brand" href="#">
+      <img src="assets/img/logo.png" width="165" height="31" class="d-inline-block align-top" alt="">
+    </a>
+  </nav>
+
+  <!-- ======= Hero Section ======= -->
+  <section id="hero" class="d-flex flex-column">
+    <div class="container" data-aos="zoom-in" data-aos-delay="100">
+      <div class="row">
+        <div class="col-12 col-sm-12 col-md-6">
+          <h2 class="text-main fw-bold fs-1">เลือกเส้นทางที่เป็นคุณ<br>ด้วยตัวของคุณเอง</h2>
+          <p class="fs-6 text-sub">ตัวช่วยในการหาเส้นทาง เเนะนำสถานที่ใหม่ๆ<br>เพื่อให้ชีวิตคุณไม่รู้สึกน่าเบื่ออีกต่อไป
+          </p>
+          <a href="#about" class="btn btn-green mt-5">เริ่มเลย</a>
+        </div>
+        <div class="col-0 col-sm-0 col-md-6">
+          <img style="background-size: cover;width: 100%;" src="assets/img/map 1.png" class="d-inline-block" alt="">
+        </div>
+      </div>
+
+    </div>
+  </section>
+  <!-- End Hero -->
+
+  <main id="main">
+
+    <!-- ======= About Section ======= -->
+    <section id="about" class="about">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-title">
+          <h2 class="text-main">ตั้งชื่อทริปของคุณ</h2>
+          <p class="text-sub">วางแผน <span class="text-main">การเดินทาง</span>
+            ตัวช่วยให้การจัดทริปของคุณให้ไม่ยุ่งยากอีกต่อไป</p>
+        </div>
+        <div class="container box-traveler">
+          <div class="row ps-0 ps-lg-5">
+            <div class="col-md-3 form-group">
+              <input type="text" class="form-control" placeholder="เลือกจุดเริ่มต้น" required>
+            </div>
+            <div class="d-none d-sm-block d-md-block d-lg-block col-md-auto form-group mt-3 mt-md-0">
+              <i style="font-size: 35px;" class="text-main bx bx-right-arrow-alt"></i>
+            </div>
+            <div class="col-md-3 form-group mt-3 mt-md-0">
+              <input type="text" class="form-control" placeholder="เลือกจุดหมาย" required>
+            </div>
+            <div class="col-md-2 form-group mt-3 mt-md-0">
+              <input type="date" class="form-control" required>
+            </div>
+            <div class="col-md-auto form-group mt-5 mt-md-0">
+              <button class="col-12 btn btn-green-home">เริ่มจัดทริปกันเลย</button>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </section><!-- End About Section -->
+
+    <!-- ======= Facts Section ======= -->
+    <section id="facts" class="d-flex flex-column justify-content-center bg-green">
+      <div class="container" data-aos="fade-up">
+        <div class="row">
+          <div class="mt-3 mt-sm-5 mt-md-5 mt-lg-5 col-12 col-sm-12 col-md-6">
+            <p class="mt-3 mt-sm-5 mt-md-5 mt-lg-5 text-white justify-content-center"><span class="fs-1 fw-bold">ทราเวลเลอร์</span> <span class="fs-5">เปิดประสบการณ์การท่องเที่ยวใหม่ๆ ตลอดทุกการเดินทาง</span>
+            </p>
+          </div>
+          <div class="col-0 col-sm-0 col-md-6">
+            <img style="background-size: cover;width: 100%;" src="assets/img/travel 1.png" class="d-inline-block" alt="">
+          </div>
+        </div>
+
+      </div>
+    </section><!-- End Facts Section -->
+
+    <!-- ======= Hero Section ======= -->
+    <section id="traveler" class="d-flex flex-column">
+      <div class="container" data-aos="fade-up">
+        <div class="row">
+          <div class="col-12 col-sm-12 col-md-6">
+            <img style="background-size: cover;width: 100%;" src="assets/img/car-cut 1.png" class="d-inline-block" alt="">
+          </div>
+          <div class="col-0 col-sm-12 col-md-6 mt-5">
+            <img style="background-size: cover;width: 100%;" src="assets/img/car-text 1.png" class="d-inline-block" alt="">
+          </div>
+        </div>
+
+      </div>
+    </section>
+    <!-- End Hero -->
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-3">
+          <img src="assets/img/logo.png" width="165" height="31" class="d-inline-block align-top" alt="">
+        </div>
+        <div class="col-6"></div>
+        <div class="col-3">
+          <div class="copyright text-main">
+            &copy; Copyright <strong><span>Traveler</span></strong>. All Rights Reserved
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer><!-- End Footer -->
+
+  <!-- <div id="preloader"></div>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a> -->

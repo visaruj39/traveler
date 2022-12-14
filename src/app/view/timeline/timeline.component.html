@@ -1,0 +1,446 @@
+<!-- ======= Mobile nav toggle button ======= -->
+<i class="bi bi-list mobile-nav-toggle d-lg-none"></i>
+<!-- ======= Header ======= -->
+<header id="header" class="d-flex flex-column justify-content-center">
+
+  <nav id="navbar" class="navbar nav-menu">
+    <ul>
+      <li><a [routerLink]="['']" class="nav-link scrollto active"><i class="bx bx-home"></i> <span
+            class="mt-1">หน้าแรก</span></a></li>
+      <li><a [routerLink]="['/timeline']" class="nav-link scrollto"><i class="bx bx-map-alt"></i> <span
+            class="mt-1">จัดทริป</span></a></li>
+      <li><a href="#resume" class="nav-link scrollto"><i class="bx bx-star"></i> <span
+            class="mt-1">ทริปยอดนิยม</span></a></li>
+    </ul>
+  </nav>
+  <!-- .nav-menu -->
+
+</header>
+<!-- End Header -->
+
+<nav class="navbar navbar-light bg-white" style="padding-left: 100px;padding-top: 30px;padding-bottom: 30px;">
+  <a class="navbar-brand" href="#">
+    <img src="assets/img/logo.png" width="165" height="31" class="d-inline-block align-top" alt="">
+  </a>
+</nav>
+
+
+<main id="main">
+
+  <!-- ======= Section ======= -->
+  <section id="resume" class="resume pt-3">
+    <div class="container" data-aos="fade-up">
+      <div class="row">
+        <div class="col-12 col-sm-12 col-md-6">
+          <agm-map style="height: 790px;" [latitude]="13.736717" [longitude]="100.523186" [zoom]="zoom">
+            <agm-direction 
+              [origin]="origin" 
+              [destination]="destination"
+            >
+          </agm-direction>
+          </agm-map>
+          <!-- <img style="background-size: cover;width: 100%;" src="assets/img/map-mock 1.png" class="d-inline-block"
+            alt=""> -->
+        </div>
+        <div class="col-12 col-sm-12 col-md-6">
+          <h5>Distance: {{distance}}</h5>
+          <hr style="border-top: 2px solid #E6E8E8;" class="mt-0">
+          <div *ngIf="editDate == false" class="row">
+            <div class="col-auto">
+              <p class="text-sub mt-4">เดินทางวันที่ 29 ธันวาคม 2022</p>
+            </div>
+            <div class="col-auto ps-0">
+              <button class="btn ps-0 mt-3 text-sub" (click)="editStartTravel()"><i class="bx bx-pencil"></i></button>
+            </div>
+          </div>
+          <div *ngIf="editDate == true" class="row">
+            <div class="col-auto">
+              <p class="text-sub mt-4">เดินทางวันที่</p>
+            </div>
+            <div class="col-auto ps-0">
+              <div class="form-group mt-3">
+                <input type="text" class="form-control" placeholder="29/10/2022" required>
+              </div>
+            </div>
+            <div class="col-auto ps-0">
+              <button class="btn btn-green-square mt-3" (click)="saveStartTravel()"><i
+                  class="bx bx-pencil"></i></button>
+            </div>
+          </div>
+
+          <div cdkDropList class="example-list pt-1 overflow-me" (cdkDropListDropped)="drop($event)">
+            <div class="example-box" *ngFor="let movie of route; let i = index" cdkDrag>
+              <div class="resume-item">
+                <p class="time-index">09:00 น.</p>
+                <p class="number-index">{{i+1}}</p>
+                <div class="card mb-3 card-timeline">
+                  <div class="row g-0">
+                    <div class="col-md-3">
+                      <img src="assets/img/st1.png" class="img-fluid rounded-start p-2" alt="...">
+                    </div>
+                    <div class="col-md-9">
+                      <div class="card-body pt-1">
+                        <div class="row">
+                          <div class="col-12 text-end">
+                            <span style="cursor: pointer;" class="text-main fs-24" aria-hidden="true">&times;</span>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-8">
+                            <p class="fs-20 mb-0">{{movie.nameLocation}}</p>
+                          </div>
+                          <div class="col-4 text-end">
+                            <p class="time-card"><span class="text-main">30</span> นาที</p>
+                          </div>
+
+                        </div>
+                        <div class="col-8">
+                          <p class="card-text"><small>{{movie.address}}</small>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-auto">
+                    <div class="range-card text-white"><i type="solid" class="bx bx-car"></i> 9.04 กม.</div>
+                  </div>
+                  <div class="col-auto ps-0">
+                    <div class="text-main mt-2" style="font-size:10px"><i type="solid" class="bx bx-time"></i> 25 นาที
+                    </div>
+                  </div>
+                  <div class="col">
+                    <hr style="border-top: 2px solid #E6E8E8;">
+                  </div>
+                </div>
+                <!-- {{movie}} -->
+              </div>
+            </div>
+          </div>
+          <div class="container ps-2 pe-2 ps-sm-5 pe-sm-5 pt-1 mt-4">
+            <div class="row mt-5">
+              <div class="col-6">
+                <button class="btn btn-ore" data-bs-toggle="modal" data-bs-target="#exampleModal"><i
+                    class="bx bx-plus"></i> เพิ่มจุดแวะ</button>
+              </div>
+              <div class="col-6 text-end">
+                <button class="btn btn-green" data-bs-toggle="modal" data-bs-target="#save"><i
+                    class="bx bx-save"></i> บันทึกทริป</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section><!-- End Section -->
+</main><!-- End #main -->
+
+<!-- Modal1 -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row"> 
+            <div class="col-6">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">เพิ่มจุดแวะ</h1>
+            </div>
+            <div class="col-6 text-end">
+              <span style="cursor: pointer;" (click)="searchChange()" class="text-main fs-24" aria-hidden="true" data-bs-dismiss="modal"
+                aria-label="Close">&times;</span>
+            </div>
+          </div>
+         
+          <div class="row mt-3" *ngIf="mapSearch == false">
+            <div class="col-auto pe-0">
+              <p class="pe-0 mb-0">ค้นหาสถานที่</p>
+            </div>
+            <div class="col-auto ps-0">
+              <a (click)="mapChange()" class="ps-0">หรือค้นหาจากแผนที่</a>
+            </div>
+          </div>
+
+          <div class="row mt-3" *ngIf="mapSearch == true">
+            <div class="col-auto pe-0">
+              <p class="pe-0 mb-0">ค้นหาสถานที่</p>
+            </div>
+            <div class="col-auto ps-0">
+              <a (click)="searchChange()" class="ps-0">หรือค้นหาจากการเสิร์ช</a>
+            </div>
+          </div>
+         
+          <div *ngIf="mapSearch == true">
+            <!-- <div class="row">
+              <div class="col-12">
+                <div class="form-group mt-2">
+                  <input type="text" class="form-control pac-container"
+                  (keydown.enter)="$event.preventDefault()" placeholder="เพิ่มจุดแวะ" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #search required>
+                </div>
+              </div>
+            </div> -->
+            <div class="row mt-3">
+              <div class="col-auto pe-0">
+                <p class="pe-0 mb-0">ปักหมุดสถานที่</p>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-md-12 text-center mb-3">  
+                <agm-map [latitude]="lat" [longitude]="long" [zoom]="zoom" (mapClick)="mapClick($event)">
+                  <agm-marker [latitude]="markerLat" [longitude]="markerLng" [markerDraggable]="true"
+                    ></agm-marker>
+                </agm-map>
+                
+                <h5>Address: {{address}}</h5>
+                <div>Latitude: {{markerLat}}</div>
+                <div>Longitude: {{markerLng}}</div>
+                        
+                <!-- <agm-map [latitude]="lat" [longitude]="long" (mapClick)="mapClick($event)"
+									[zoom]="zoom">
+									<agm-marker [latitude]="markerLat" [longitude]="markerLng">
+									</agm-marker>
+								</agm-map> -->
+                <!-- <img src="assets/img/map-search.png" class="img-fluid rounded-start p-2" alt="..."> -->
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-12 col-sm-6 col-md-6">
+                  <div class="col-12">
+                    <p class="text-start fs-14 mb-0">กำหนดเวลาที่ใช้</p>
+                    <small class="text-start fs-10 text-muted">ระบุเพื่อจะนำไปใช้คำนวนเวลาในการเดินทาง</small>
+                    <div class="form-group mt-1">
+                      <input type="text" class="form-control" placeholder="เวลาที่ใช้" required>
+                    </div>
+                  </div>
+              </div>
+              <div class="col-12 col-sm-6 col-md-6 text-end mt-5">
+                <button type="button" class="btn btn-green-square-full" (click)="addNewLocation()">เพิ่มจุดเเวะ</button>
+              </div>           
+            </div>
+          </div>
+          <div *ngIf="mapSearch == false">
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group mt-2">
+                  <input type="text" class="form-control pac-container"
+                  (keydown.enter)="$event.preventDefault()" placeholder="เพิ่มจุดแวะ" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #search required>
+                </div>
+              </div>
+              <!-- <div class="col-auto">
+                <button class="btn btn-green-square mt-3"><i
+                    class="bx bx-search"></i></button>
+              </div> -->
+            </div>
+            <div class="mt-5">  
+            <input type="checkbox" class="btn-check" id="btn-check" checked autocomplete="off" />
+            <label style="border-radius: 30px;" class="btn btn-outline-primary me-1" for="btn-check">ทั้งหมด</label>
+            
+            <input type="checkbox" class="btn-check" id="btn-check2"  autocomplete="off" />
+            <label style="border-radius: 30px;" class="btn btn-outline-primary m-1" for="btn-check2">ศูนย์การค้า</label>
+            
+            <input type="checkbox" class="btn-check" id="btn-check3" autocomplete="off" />
+            <label style="border-radius: 30px;" class="btn btn-outline-primary m-1" for="btn-check3">โรงพยาบาล</label>
+
+            <input type="checkbox" class="btn-check" id="btn-check4" autocomplete="off" />
+            <label style="border-radius: 30px;" class="btn btn-outline-primary m-1" for="btn-check4">ร้านกาแฟ</label>
+
+            <input type="checkbox" class="btn-check" id="btn-check5" autocomplete="off" />
+            <label style="border-radius: 30px;" class="btn btn-outline-primary m-1" for="btn-check5">วัด</label>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-auto pe-0">
+              <p class="pe-0 mb-0">สถานที่แนะนำ</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4 p-1">
+              <div class="card mb-3" style="max-width: 100%;">
+                <div class="row g-0">
+                  <div class="col-md-12 text-center">
+                    <img src="assets/img/st1.png" class="img-fluid rounded-start p-2" alt="...">
+                  </div>
+                  <div class="col-md-12">
+                    <div class="card-body pt-1">
+                      <div class="row">
+                        <div class="col-12">
+                          <p class="fs-16 mb-0">บ้านฉันเอง</p>
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <p class="card-text fs-12"><small>ห่างจากจุดเริ่มต้น 10 กม.</small>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-4 p-1">
+              <div class="card mb-3" style="max-width: 100%;">
+                <div class="row g-0">
+                  <div class="col-md-12 text-center">
+                    <img src="assets/img/st1.png" class="img-fluid rounded-start p-2" alt="...">
+                  </div>
+                  <div class="col-md-12">
+                    <div class="card-body pt-1">
+                      <div class="row">
+                        <div class="col-12">
+                          <p class="fs-16 mb-0">บ้านฉันเอง</p>
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <p class="card-text fs-12"><small>ห่างจากจุดเริ่มต้น 10 กม.</small>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-4 p-1">
+              <div class="card mb-3" style="max-width: 100%;">
+                <div class="row g-0">
+                  <div class="col-md-12 text-center">
+                    <img src="assets/img/st1.png" class="img-fluid rounded-start p-2" alt="...">
+                  </div>
+                  <div class="col-md-12">
+                    <div class="card-body pt-1">
+                      <div class="row">
+                        <div class="col-12">
+                          <p class="fs-16 mb-0">บ้านฉันเอง</p>
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <p class="card-text fs-12"><small>ห่างจากจุดเริ่มต้น 10 กม.</small>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-12 col-sm-6 col-md-6">
+                <div class="col-12">
+                  <p class="text-start fs-14 mb-0">กำหนดเวลาที่ใช้</p>
+                  <small class="text-start fs-10 text-muted">ระบุเพื่อจะนำไปใช้คำนวนเวลาในการเดินทาง</small>
+                  <div class="form-group mt-1">
+                    <input type="text" class="form-control" placeholder="เวลาที่ใช้" required>
+                  </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-6 text-end mt-5">
+              <button type="button" class="btn btn-green-square-full">เพิ่มจุดเเวะ</button>
+            </div>           
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Modal1 -->
+
+<!-- Modal2 -->
+<div class="modal fade" id="save" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row"> 
+            <div class="col-6">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">บันทึกทริป</h1>
+            </div>
+            <div class="col-6 text-end">
+              <span style="cursor: pointer;" class="text-main fs-24" aria-hidden="true" data-bs-dismiss="modal"
+                aria-label="Close">&times;</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12">
+              <div class="form-group mt-3">
+                <input type="text" class="form-control" placeholder="ตั้งชื่อทริปของคุณ" required>
+              </div>
+            </div>
+          </div>
+       
+          <div class="row mb-3">
+            <div class="col-12 col-sm-6 col-md-6">
+            </div>
+            <div class="col-12 col-sm-6 col-md-6 text-end mt-5">
+              <button type="button" class="btn col-12 btn-green-square-full" data-bs-toggle="modal" data-bs-target="#finish">ยืนยัน</button>
+            </div>           
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Modal2 -->
+
+<!-- Modal3 -->
+<div class="modal fade" id="finish" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-12 text-center mt-3 mb-3">
+              <img style="background-size: cover;width: 152px;" src="assets/img/go 1.png" class="d-inline-block" alt="">
+            </div>
+          </div>
+          <div class="row"> 
+            <div class="col-12">
+              <h1 class="modal-title text-center fs-5" id="exampleModalLabel">ทริปของคุณถูกสร้างแล้ว</h1>
+              <p class="text-sub text-center fs-12">กรุณาเก็บลิ้งค์ของคุณเพื่อใช้ในครั้งถัดไป</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-11 mx-auto">
+              <div class="form-group">
+                <input type="text" class="form-control" value="http://www.traveler.com/trips/20221115001" required>
+              </div>
+              <p class="text-sub text-center fs-12 mt-2">คุณสามารถเเบ่งปันทริปของคุณให้คนอื่นได้</p>
+            </div>
+          </div>
+       
+          <div class="row mb-3 mx-auto mt-3 mb-3">
+            <div class="col-12 col-sm-6 col-md-6 text-center">
+              <button type="button" class="col-12 btn btn-none-square-full">แชร์เลย</button>
+            </div>
+            <div class="col-12 col-sm-6 col-md-6 text-center">
+              <button type="button" class="col-12 btn btn-green-square-full" data-bs-dismiss="modal">ตกลง</button>
+            </div>           
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Modal3 -->
+
+<!-- ======= Footer ======= -->
+<!-- <footer id="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-12 col-sm-3 col-md-3 col-lg-3">
+        <img src="assets/img/logo.png" width="165" height="31" class="d-inline-block align-top" alt="">
+      </div>
+      <div class="col-0 col-sm-6 col-md-6 col-lg-6"></div>
+      <div class="col-12 col-sm-3 col-md-3 col-lg-3 mt-2 mt-sm-1 mt-md-1 mt-lg-1">
+        <div class="copyright text-main">
+          &copy; Copyright <strong><span>Traveler</span></strong>. All Rights Reserved
+        </div>
+      </div>
+    </div>
+  </div>
+</footer> -->
+<!-- End Footer -->
+
+<!-- <div id="preloader"></div>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a> -->
