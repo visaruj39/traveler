@@ -32,10 +32,14 @@
     <div class="container" data-aos="fade-up">
       <div class="row">
         <div class="col-12 col-sm-12 col-md-6">
-          <agm-map style="height: 790px;" [latitude]="13.736717" [longitude]="100.523186" [zoom]="zoom">
+          <agm-map style="height: 790px;" [latitude]="13.736717" [longitude]="100.523186" [zoom]="zoomInMap">
             <agm-direction 
-              [origin]="origin" 
-              [destination]="destination"
+            [origin]="originMap" 
+            [destination]="destinationMap" 
+            [renderOptions]="renderOptions" 
+            [markerOptions]="markerOptions"
+            [waypoints]="waypoints"
+            (onChange)="change($event)"
             >
           </agm-direction>
           </agm-map>
@@ -186,8 +190,12 @@
             </div>
             <div class="row mt-2">
               <div class="col-md-12 text-center mb-3">  
-                <agm-map [latitude]="lat" [longitude]="long" [zoom]="zoom" (mapClick)="mapClick($event)">
-                  <agm-marker [latitude]="markerLat" [longitude]="markerLng" [markerDraggable]="true"
+                <agm-map [latitude]="lat" [longitude]="long" [zoom]="zoomInMap" (mapClick)="mapClick($event)">
+                  <agm-marker 
+                  [latitude]="markerLat" 
+                  [longitude]="markerLng" 
+                  [markerDraggable]="true"
+                  (onChange)="addLocation($event)"
                     ></agm-marker>
                 </agm-map>
                 
@@ -209,7 +217,7 @@
                     <p class="text-start fs-14 mb-0">กำหนดเวลาที่ใช้</p>
                     <small class="text-start fs-10 text-muted">ระบุเพื่อจะนำไปใช้คำนวนเวลาในการเดินทาง</small>
                     <div class="form-group mt-1">
-                      <input type="text" class="form-control" placeholder="เวลาที่ใช้" required>
+                      <input type="time" class="form-control" placeholder="เวลาที่ใช้" required>
                     </div>
                   </div>
               </div>
@@ -327,7 +335,7 @@
                   <p class="text-start fs-14 mb-0">กำหนดเวลาที่ใช้</p>
                   <small class="text-start fs-10 text-muted">ระบุเพื่อจะนำไปใช้คำนวนเวลาในการเดินทาง</small>
                   <div class="form-group mt-1">
-                    <input type="text" class="form-control" placeholder="เวลาที่ใช้" required>
+                    <input type="time" class="form-control" placeholder="เวลาที่ใช้" required>
                   </div>
                 </div>
             </div>
