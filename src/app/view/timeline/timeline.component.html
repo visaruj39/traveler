@@ -47,7 +47,6 @@
             alt=""> -->
         </div>
         <div class="col-12 col-sm-12 col-md-6">
-          <h5>Distance: {{distance}}</h5>
           <hr style="border-top: 2px solid #E6E8E8;" class="mt-0">
           <div *ngIf="editDate == false" class="row">
             <div class="col-auto">
@@ -75,7 +74,7 @@
           <div cdkDropList class="example-list pt-1 overflow-me" (cdkDropListDropped)="drop($event)">
             <div class="example-box" *ngFor="let movie of route; let i = index" cdkDrag>
               <div class="resume-item">
-                <p class="time-index">09:00 น.</p>
+                <p class="time-index">{{itTime.time}}</p>
                 <p class="number-index">{{i+1}}</p>
                 <div class="card mb-3 card-timeline">
                   <div class="row g-0">
@@ -125,7 +124,7 @@
           <div class="container ps-2 pe-2 ps-sm-5 pe-sm-5 pt-1 mt-4">
             <div class="row mt-5">
               <div class="col-6">
-                <button class="btn btn-ore" data-bs-toggle="modal" data-bs-target="#exampleModal"><i
+                <button class="btn btn-ore" data-bs-toggle="modal" data-bs-target="#modalPinMap"><i
                     class="bx bx-plus"></i> เพิ่มจุดแวะ</button>
               </div>
               <div class="col-6 text-end">
@@ -141,7 +140,7 @@
 </main><!-- End #main -->
 
 <!-- Modal1 -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="modalPinMap" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-body">
@@ -195,7 +194,6 @@
                   [latitude]="markerLat" 
                   [longitude]="markerLng" 
                   [markerDraggable]="true"
-                  (onChange)="addLocation($event)"
                     ></agm-marker>
                 </agm-map>
                 
@@ -213,16 +211,18 @@
             </div>
             <div class="row mb-3">
               <div class="col-12 col-sm-6 col-md-6">
+                <form [formGroup]="mapSetTimeForm">
                   <div class="col-12">
                     <p class="text-start fs-14 mb-0">กำหนดเวลาที่ใช้</p>
                     <small class="text-start fs-10 text-muted">ระบุเพื่อจะนำไปใช้คำนวนเวลาในการเดินทาง</small>
                     <div class="form-group mt-1">
-                      <input type="time" class="form-control" placeholder="เวลาที่ใช้" required>
+                      <input type="time" formControlName="stayTime" class="form-control" placeholder="เวลาที่ใช้" required>
                     </div>
                   </div>
+                </form>
               </div>
               <div class="col-12 col-sm-6 col-md-6 text-end mt-5">
-                <button type="button" class="btn btn-green-square-full" (click)="addNewLocation()">เพิ่มจุดเเวะ</button>
+                <button type="button" class="btn btn-green-square-full" data-bs-dismiss="modal" (click)="addNewLocation()">เพิ่มจุดเเวะ</button>
               </div>           
             </div>
           </div>
