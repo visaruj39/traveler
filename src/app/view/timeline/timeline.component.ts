@@ -1,8 +1,10 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone,Input } from '@angular/core';
 import {CdkDragDrop, moveItemInArray, transferArrayItem,} from '@angular/cdk/drag-drop';
 import { GoogleMapsAPIWrapper, MapsAPILoader ,Polyline, PolylineOptions } from '@agm/core';
 import { FormControl, FormBuilder, FormGroup, Validators, FormControlName } from '@angular/forms';
 import { Observable } from 'rxjs';
+import { DataService } from 'src/app/service/data.service';
+
 declare var $;
 @Component({
   selector: 'app-timeline',
@@ -10,6 +12,7 @@ declare var $;
   styleUrls: ['./timeline.component.css']
 })
 export class TimelineComponent implements OnInit {
+  sendLocation;
   lat = 13.736717;
   long = 100.523186;
   markerLat
@@ -22,6 +25,7 @@ export class TimelineComponent implements OnInit {
   latitude: number;
   longitude: number;
   addDistance
+  loopData = []
   itTime = [
     {
       time: '09:00'
@@ -36,8 +40,8 @@ export class TimelineComponent implements OnInit {
   public searchElementRef: ElementRef;
   // @ViewChild("source",{ static: false })
   // public sourceElementRef: ElementRef;
-  // @ViewChild("mapView",{ static: false })
-  // public mapElementRef: ElementRef;
+  @ViewChild("mapView",{ static: false })
+  public mapElementRef: ElementRef;
   
   route = [
     {
@@ -59,33 +63,18 @@ export class TimelineComponent implements OnInit {
       diatance: "9.00Km"
     }
   ];
+
+
   editDate: boolean = false
   mapSearch: boolean = false
 
   public latMap: Number = 14.0392544;
   public lngMap: Number = 100.6547922;
 
-  public originMap = { lat: this.route[0].lat, lng: this.route[0].lng };
-  public destinationMap = { lat: this.route[this.route.length - 1].lat, lng: this.route[this.route.length - 1].lng };
+  public originMap
+  public destinationMap
 
-  public waypoints = [
-      // {
-      //   location: { lat: this.route[1].lat, lng: this.route[1].lng },
-      //   stopover: false,
-      // },
-    // {
-    //   location: { lat: 13.9891719, lng: 100.615883 },
-    //   stopover: false,
-    // },
-    // {
-    //   location: { lat: 13.9608991, lng: 100.6200272 },
-    //   stopover: false,
-    // }, 
-    {
-      location: { lat: 13.8564217, lng: 100.5396361 },
-      stopover: false,
-     }
-  ];
+  public waypoints = []
 
   public markerOptions = {
     origin: {
@@ -211,21 +200,31 @@ export class TimelineComponent implements OnInit {
 
   data 
   mapSetTimeForm : FormGroup;
+  searchMap : FormGroup;
   constructor(
     private mapsAPILoader: MapsAPILoader,
     private ngZone: NgZone,
     private formBuilder: FormBuilder,
+    private dataService: DataService
   ) { }
     
 
   ngOnInit() {
+    this.sendLocation = this.dataService.getData();
+    console.log("sendLocation",this.sendLocation)
     console.log("test",this.route.length-1)
+    console.log("test",this.route)
+    console.log("markerLng",this.waypoints)
+    this.originMap = { lat: this.route[0].lat, lng: this.route[0].lng };
+    this.destinationMap = { lat: this.route[this.route.length - 1].lat, lng: this.route[this.route.length - 1].lng };
+    
+    console.log("Back",this.waypoints)
     this.mapsAPILoader.load().then(() => {
       // this.setCurrentLocation();
       // console.log("value",this.setCurrentLocation())
       this.geoCoder = new google.maps.Geocoder;
   
-      let autocomplete = new google.maps.places.Autocomplete(this.searchElementRef.nativeElement);
+      let autocomplete = new google.maps.places.Autocomplete(this.mapElementRef.nativeElement);
       autocomplete.addListener("place_changed", () => {
         this.ngZone.run(() => {
           let place: google.maps.places.PlaceResult = autocomplete.getPlace();
@@ -236,11 +235,15 @@ export class TimelineComponent implements OnInit {
   
           this.latitude = place.geometry.location.lat();
           this.longitude = place.geometry.location.lng();
+          console.log("this.latitude",this.latitude)
+          console.log("this.longitude",this.longitude)
+          this.getAddress(this.latitude, this.longitude);
           this.zoom = 12;
         });
       });
     });
     this.formSetTime()
+    this.formSearchMap()
   }
 
   formSetTime() {
@@ -248,6 +251,66 @@ export class TimelineComponent implements OnInit {
       stayTime: ['']
     })
   }
+
+  formSearchMap() {
+    this.searchMap = this.formBuilder.group({
+      map: [''],
+      stayTime: ['']
+    })
+  }
+
+  waypointLoop(){
+    // let routeWaypoint = [...this.route];
+    // routeWaypoint.splice(0, 1);
+    // routeWaypoint.splice(-1, 1);
+    // console.log("routeWaypoint",routeWaypoint)
+
+    let data = {
+          location: { lat: this.markerLat, lng: this.markerLng },
+          stopover: false, 
+    }
+      console.log("data",data)   
+
+      this.loopData.push(data)
+      this.waypoints = [...this.waypoints, ... this.loopData];
+      console.log("this.waypoints",this.waypoints)
+
+  }
+
+  addNewLocation(){
+    var lastIndex = this.route.length - 1
+    console.log("lastIndex",lastIndex)
+    let data ={
+              nameLocation: this.name,
+              address: this.address,
+              lat: this.markerLat,
+              lng: this.markerLng,
+              time: this.mapSetTimeForm.value.stayTime,
+              availableTime: this.itTime,
+              diatance: this.addDistance
+      }
+    this.route.splice(lastIndex, 0, data)
+    this.waypointLoop()
+    console.log("route",this.route)
+  }
+
+  addNewLocationBySearch(){
+    var lastIndex = this.route.length - 1
+    console.log("lastIndex",lastIndex)
+    let data ={
+              nameLocation: this.name,
+              address: this.address,
+              lat: this.latitude,
+              lng: this.longitude,
+              time: this.searchMap.value.stayTime,
+              availableTime: this.itTime,
+              diatance: this.addDistance
+      }
+    this.route.splice(lastIndex, 0, data)
+    this.waypointLoop()
+    console.log("route",this.route)
+  }
+
 
   public change(event: any) { 
     console.log("event",event);
@@ -267,13 +330,13 @@ export class TimelineComponent implements OnInit {
 //  }
 
 
-  getDirection() {
-    this.origin = { lat: 14.038323797081812, lng: 100.65489099721118 };
-    this.destination = { lat: this.markerLat, lng: this.markerLng };
+  // getDirection() {
+    // this.origin = { lat: 14.038323797081812, lng: 100.65489099721118 };
+    // this.destination = { lat: this.markerLat, lng: this.markerLng };
     // Location within a string
     // this.origin = 'Taipei Main Station';
     // this.destination = 'Taiwan Presidential Office';
-  }
+  // }
 
   mapClick(e) {
     console.log("event",e.coords)
@@ -281,7 +344,7 @@ export class TimelineComponent implements OnInit {
     this.markerLng = e.coords.lng
     
     this.getAddress(this.markerLat, this.markerLng);
-    this.getDirection();
+    // this.getDirection();
     // this.distance = google.maps.geometry.spherical.computeDistanceBetween(this.origin, this.destination);
     // console.log("value",this.distance / 1000)
     // this.distance = this.distance / 1000
@@ -298,36 +361,6 @@ export class TimelineComponent implements OnInit {
   //   }
   // }
 
-  addNewLocation(){
-    // this.route.push({
-    //         nameLocation: this.name,
-    //         address: this.address,
-    //         lat: this.markerLat,
-    //         lng: this.markerLng,
-    //         time: this.mapSetTimeForm.value.stayTime,
-    //         availableTime: this.itTime,
-    //         diatance: this.addDistance
-    // })
-    var lastIndex = this.route.length - 1
-    console.log("lastIndex",lastIndex)
-    // this.route.forEach((res,index) => 
-    //   {
-    //     if(index !== 0 || index !== lastIndex){
-    //       this.route.splice(2, 0, res)
-    //     }
-    //   })
-    let data ={
-              nameLocation: this.name,
-              address: this.address,
-              lat: this.markerLat,
-              lng: this.markerLng,
-              time: this.mapSetTimeForm.value.stayTime,
-              availableTime: this.itTime,
-              diatance: this.addDistance
-      }
-    this.route.splice(this.route.length -1, 0, data)
-    console.log("route",this.route)
-  }
 
   getAddress(latitude, longitude) {
     this.geoCoder.geocode({ 'location': { lat: latitude, lng: longitude } }, (results, status) => {

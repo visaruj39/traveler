@@ -5,12 +5,12 @@
 
   <nav id="navbar" class="navbar nav-menu">
     <ul>
-      <li><a [routerLink]="['']" class="nav-link scrollto active"><i class="bx bx-home"></i> <span
+      <li><a [routerLink]="['']" class="nav-link scrollto"><i class="bx bx-home"></i> <span
             class="mt-1">หน้าแรก</span></a></li>
-      <li><a [routerLink]="['/timeline']" class="nav-link scrollto"><i class="bx bx-map-alt"></i> <span
+      <li><a [routerLink]="['/timeline']" class="nav-link scrollto active"><i class="bx bx-map-alt"></i> <span
             class="mt-1">จัดทริป</span></a></li>
-      <li><a href="#resume" class="nav-link scrollto"><i class="bx bx-star"></i> <span
-            class="mt-1">ทริปยอดนิยม</span></a></li>
+      <!-- <li><a href="#resume" class="nav-link scrollto"><i class="bx bx-star"></i> <span
+            class="mt-1">ทริปยอดนิยม</span></a></li> -->
     </ul>
   </nav>
   <!-- .nav-menu -->
@@ -62,7 +62,7 @@
             </div>
             <div class="col-auto ps-0">
               <div class="form-group mt-3">
-                <input type="text" class="form-control" placeholder="29/10/2022" required>
+                <input type="datetime-local" class="form-control" required>
               </div>
             </div>
             <div class="col-auto ps-0">
@@ -70,7 +70,6 @@
                   class="bx bx-pencil"></i></button>
             </div>
           </div>
-
           <div cdkDropList class="example-list pt-1 overflow-me" (cdkDropListDropped)="drop($event)">
             <div class="example-box" *ngFor="let movie of route; let i = index" cdkDrag>
               <div class="resume-item">
@@ -227,18 +226,21 @@
             </div>
           </div>
           <div *ngIf="mapSearch == false">
-            <div class="row">
-              <div class="col-12">
-                <div class="form-group mt-2">
-                  <input type="text" class="form-control pac-container"
-                  (keydown.enter)="$event.preventDefault()" placeholder="เพิ่มจุดแวะ" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #search required>
+            <form [formGroup]="searchMap">
+              <div class="row">
+                <div class="col-12">
+                  <div class="form-group mt-2">
+                    <input type="text" class="form-control pac-container"
+                    (keydown.enter)="$event.preventDefault()" placeholder="เพิ่มจุดแวะ" formControlName="map" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #mapView required>
+                  </div>
                 </div>
+                <!-- <div class="col-auto">
+                  <button class="btn btn-green-square mt-3"><i
+                      class="bx bx-search"></i></button>
+                </div> -->
               </div>
-              <!-- <div class="col-auto">
-                <button class="btn btn-green-square mt-3"><i
-                    class="bx bx-search"></i></button>
-              </div> -->
-            </div>
+            
+           
             <div class="mt-5">  
             <input type="checkbox" class="btn-check" id="btn-check" checked autocomplete="off" />
             <label style="border-radius: 30px;" class="btn btn-outline-primary me-1" for="btn-check">ทั้งหมด</label>
@@ -335,14 +337,15 @@
                   <p class="text-start fs-14 mb-0">กำหนดเวลาที่ใช้</p>
                   <small class="text-start fs-10 text-muted">ระบุเพื่อจะนำไปใช้คำนวนเวลาในการเดินทาง</small>
                   <div class="form-group mt-1">
-                    <input type="time" class="form-control" placeholder="เวลาที่ใช้" required>
+                    <input type="time" formControlName="stayTime" class="form-control" placeholder="เวลาที่ใช้" required>
                   </div>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-md-6 text-end mt-5">
-              <button type="button" class="btn btn-green-square-full">เพิ่มจุดเเวะ</button>
+              <button type="button" class="btn btn-green-square-full" (click)="addNewLocationBySearch()">เพิ่มจุดเเวะ</button>
             </div>           
           </div>
+          </form>
           </div>
         </div>
       </div>

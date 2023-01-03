@@ -10,8 +10,8 @@
               class="mt-1">หน้าแรก</span></a></li>
         <li><a [routerLink]="['/timeline']" class="nav-link scrollto"><i class="bx bx-map-alt"></i> <span
               class="mt-1">จัดทริป</span></a></li>
-        <li><a href="#resume" class="nav-link scrollto"><i class="bx bx-star"></i> <span
-              class="mt-1">ทริปยอดนิยม</span></a></li>
+        <!-- <li><a href="#resume" class="nav-link scrollto"><i class="bx bx-star"></i> <span
+              class="mt-1">ทริปยอดนิยม</span></a></li> -->
       </ul>
     </nav>
     <!-- .nav-menu -->
@@ -47,37 +47,43 @@
   <main id="main">
 
     <!-- ======= About Section ======= -->
-    <section id="about" class="about">
-      <div class="container" data-aos="fade-up">
-
-        <div class="section-title">
-          <h2 class="text-main">ตั้งชื่อทริปของคุณ</h2>
-          <p class="text-sub">วางแผน <span class="text-main">การเดินทาง</span>
-            ตัวช่วยให้การจัดทริปของคุณให้ไม่ยุ่งยากอีกต่อไป</p>
-        </div>
-        <div class="container box-traveler">
-          <div class="row ps-0 ps-lg-5">
-            <div class="col-md-3 form-group">
-              <input type="text" class="form-control" placeholder="เลือกจุดเริ่มต้น" required>
-            </div>
-            <div class="d-none d-sm-block d-md-block d-lg-block col-md-auto form-group mt-3 mt-md-0">
-              <i style="font-size: 35px;" class="text-main bx bx-right-arrow-alt"></i>
-            </div>
-            <div class="col-md-3 form-group mt-3 mt-md-0">
-              <input type="text" class="form-control" placeholder="เลือกจุดหมาย" required>
-            </div>
-            <div class="col-md-2 form-group mt-3 mt-md-0">
-              <input type="date" class="form-control" required>
-            </div>
-            <div class="col-md-auto form-group mt-5 mt-md-0">
-              <button class="col-12 btn btn-green-home">เริ่มจัดทริปกันเลย</button>
+    <form [formGroup]="searchMap">
+      <section id="about" class="about">
+        <div class="container" data-aos="fade-up">
+  
+          <div class="section-title">
+            <h2 class="text-main">ตั้งชื่อทริปของคุณ</h2>
+            <p class="text-sub">วางแผน <span class="text-main">การเดินทาง</span>
+              ตัวช่วยให้การจัดทริปของคุณให้ไม่ยุ่งยากอีกต่อไป</p>
+          </div>
+          <div class="container box-traveler">
+            <div class="row ps-0 ps-lg-5">
+              <div class="col-md-3 form-group">
+                <input type="text" class="form-control" (keydown.enter)="$event.preventDefault()" placeholder="เลือกจุดเริ่มต้น" formControlName="startMap" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #start required>
+              </div>
+              <div class="d-none d-sm-block d-md-block d-lg-block col-md-auto form-group mt-3 mt-md-0">
+                <i style="font-size: 35px;" class="text-main bx bx-right-arrow-alt"></i>
+              </div>
+              <div class="col-md-3 form-group mt-3 mt-md-0">
+                <!-- <input type="text" class="form-control" placeholder="เลือกจุดหมาย" required> -->
+                <input type="text" class="form-control" (keydown.enter)="$event.preventDefault()" placeholder="เลือกจุดหมาย" formControlName="endMap" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #end required>
+              </div>
+              <div class="col-md-2 form-group mt-3 mt-md-0">
+                <input type="datetime-local" class="form-control" formControlName="dateTime" required>
+              </div>
+              <div class="col-md-auto form-group mt-5 mt-md-0">
+                <button class="col-12 btn btn-green-home" (click)="sendData()">เริ่มจัดทริปกันเลย</button>
+                <!-- <ng-container *ngIf="test == 2">
+                  <app-timeline #sendLocation></app-timeline>
+                </ng-container> -->
+                
+              </div>
             </div>
           </div>
         </div>
-
-
-      </div>
-    </section><!-- End About Section -->
+      </section>
+    </form>
+    <!-- End About Section -->
 
     <!-- ======= Facts Section ======= -->
     <section id="facts" class="d-flex flex-column justify-content-center bg-green">
