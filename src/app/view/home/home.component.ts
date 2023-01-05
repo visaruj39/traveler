@@ -140,16 +140,38 @@ export class HomeComponent implements OnInit {
     console.log(this.latitudeS,this.longitudeS)
     console.log(this.latitudeE,this.longitudeE)
     console.log(this.searchMap.value.dateTime)
-    let data = {
-      latS: this.latitudeS,
-      lngS: this.longitudeS,
-      latE: this.latitudeE,
-      lngE: this.longitudeE,
-      dateTime: this.searchMap.value.dateTime
-    }
+    // let data = {
+    //   latS: this.latitudeS,
+    //   lngS: this.longitudeS,
+    //   latE: this.latitudeE,
+    //   lngE: this.longitudeE,
+    //   dateTime: this.searchMap.value.dateTime
+    // }
+    
+     let data = [{
+        nameLocation: this.nameStart,
+        address: this.addressEnd,
+        lat: this.latitudeS,
+        lng: this.longitudeS,
+        time: '', //เวลาที่อยู่สถานที่นั้น
+        availableTime: "", //เวลามาถึง
+        diatance: "" //ระยะทางที่ใช้
+      },
+      {
+        nameLocation: this.nameEnd,
+        address: this.addressStart,
+        lat: this.latitudeE,
+        lng: this.longitudeE,
+        time: '',
+        availableTime: "",
+        diatance: ""
+      }
+    ]
     this.sendLocation = data
     console.log("sss",this.sendLocation)
+
     this.dataService.setData(this.sendLocation);
+    this.dataService.setTime(this.searchMap.value.dateTime);
     this.router.navigate([`/timeline`])
   }
 
