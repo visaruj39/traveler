@@ -19,6 +19,15 @@ body {
   color: #272829;
 }
 
+.btn {
+  font-family: 'Noto Sans Thai', sans-serif;
+}
+
+.nav-menu {
+  font-family: 'Noto Sans Thai', sans-serif;
+}
+
+
 .time-index {
   width: 100%;
   position: absolute;

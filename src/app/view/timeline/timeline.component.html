@@ -33,22 +33,18 @@
       <div class="row">
         <div class="col-12 col-sm-12 col-md-6">
           <agm-map style="height: 790px;" [latitude]="13.736717" [longitude]="100.523186" [zoom]="zoomInMap">
-            <agm-direction 
-            [origin]="originMap" 
-            [destination]="destinationMap" 
-            [renderOptions]="renderOptions" 
-            [markerOptions]="markerOptions"
-            [waypoints]="waypoints"
-            (onChange)="change($event)"
-            >
-          </agm-direction>
+            <agm-direction [origin]="originMap" [destination]="destinationMap" [renderOptions]="renderOptions"
+              [markerOptions]="markerOptions" [waypoints]="waypoints" (onChange)="change($event)">
+            </agm-direction>
           </agm-map>
           <!-- <img style="background-size: cover;width: 100%;" src="assets/img/map-mock 1.png" class="d-inline-block"
             alt=""> -->
         </div>
         <div class="col-12 col-sm-12 col-md-6">
           <hr style="border-top: 2px solid #E6E8E8;" class="mt-0">
-          <button (click)="getNameImage()">ddd</button>
+          <!-- <button (click)="calculationDistance()">start</button>
+          <div id="dvDistance"></div>
+          <div id="dvDuration"></div> -->
           <div *ngIf="editDate == false" class="row">
             <div class="col-auto">
               <p class="text-sub mt-4">เดินทางวันที่ {{dateTime | date: 'dd MMMM yyyy'}}
@@ -77,7 +73,9 @@
           <div cdkDropList class="example-list pt-1 overflow-me" (cdkDropListDropped)="drop($event)">
             <div class="example-box" *ngFor="let movie of route; let i = index" cdkDrag>
               <div class="resume-item">
-                <p class="time-index">{{dateTime | date: 'HH:mm'}} น.</p>
+                <ng-container *ngIf="movie.availableTime">
+                  <p class="time-index">{{movie.availableTime}} น.</p>
+                </ng-container>
                 <p class="number-index">{{i+1}}</p>
                 <div class="card mb-3 card-timeline">
                   <div class="row g-0">
@@ -88,16 +86,19 @@
                       <div class="card-body pt-1">
                         <div class="row">
                           <div class="col-12 text-end">
-                            <span style="cursor: pointer;" class="text-main fs-24" aria-hidden="true">&times;</span>
+                            <span style="cursor: pointer;" (click)="remove(i)" class="text-main fs-20"
+                              aria-hidden="true">&times;</span>
                           </div>
                         </div>
                         <div class="row">
                           <div class="col-8">
                             <p class="fs-20 mb-0">{{movie.nameLocation}}</p>
                           </div>
-                          <div class="col-4 text-end">
-                            <p class="time-card"><span class="text-main">30</span> นาที</p>
-                          </div>
+                          <ng-container *ngIf="movie.time != ''">
+                            <div class="col-4 text-end">
+                              <p class="time-card"><span class="text-main">{{movie.time}}</span></p>
+                            </div>
+                          </ng-container>
 
                         </div>
                         <div class="col-8">
@@ -110,11 +111,15 @@
                 </div>
                 <div class="row">
                   <div class="col-auto">
-                    <div class="range-card text-white"><i type="solid" class="bx bx-car"></i> 9.04 กม.</div>
+                    <ng-container *ngIf="movie.distance">
+                      <div class="range-card text-white"><i type="solid" class="bx bx-car"></i> {{movie.distance}} กม.</div>
+                    </ng-container>
                   </div>
                   <div class="col-auto ps-0">
-                    <div class="text-main mt-2" style="font-size:10px"><i type="solid" class="bx bx-time"></i> 25 นาที
-                    </div>
+                    <ng-container *ngIf="movie.travelTime">
+                      <div class="text-main mt-2" style="font-size:10px"><i type="solid" class="bx bx-time"></i>
+                        {{movie.travelTime}} นาที</div>
+                    </ng-container>
                   </div>
                   <div class="col">
                     <hr style="border-top: 2px solid #E6E8E8;">
@@ -131,8 +136,8 @@
                     class="bx bx-plus"></i> เพิ่มจุดแวะ</button>
               </div>
               <div class="col-6 text-end">
-                <button class="btn btn-green" data-bs-toggle="modal" data-bs-target="#save"><i
-                    class="bx bx-save"></i> บันทึกทริป</button>
+                <button class="btn btn-green" data-bs-toggle="modal" data-bs-target="#save"><i class="bx bx-save"></i>
+                  บันทึกทริป</button>
               </div>
             </div>
           </div>
@@ -148,16 +153,16 @@
     <div class="modal-content">
       <div class="modal-body">
         <div class="container-fluid">
-          <div class="row"> 
+          <div class="row">
             <div class="col-6">
               <h1 class="modal-title fs-5" id="exampleModalLabel">เพิ่มจุดแวะ</h1>
             </div>
             <div class="col-6 text-end">
-              <span style="cursor: pointer;" (click)="searchChange()" class="text-main fs-24" aria-hidden="true" data-bs-dismiss="modal"
-                aria-label="Close">&times;</span>
+              <span style="cursor: pointer;" (click)="searchChange()" class="text-main fs-24" aria-hidden="true"
+                data-bs-dismiss="modal" aria-label="Close">&times;</span>
             </div>
           </div>
-         
+
           <div class="row mt-3" *ngIf="mapSearch == false">
             <div class="col-auto pe-0">
               <p class="pe-0 mb-0">ค้นหาสถานที่</p>
@@ -175,7 +180,7 @@
               <a (click)="searchChange()" class="ps-0">หรือค้นหาจากการเสิร์ช</a>
             </div>
           </div>
-         
+
           <div *ngIf="mapSearch == true">
             <!-- <div class="row">
               <div class="col-12">
@@ -191,19 +196,15 @@
               </div>
             </div>
             <div class="row mt-2">
-              <div class="col-md-12 text-center mb-3">  
+              <div class="col-md-12 text-center mb-3">
                 <agm-map [latitude]="lat" [longitude]="long" [zoom]="zoomInMap" (mapClick)="mapClick($event)">
-                  <agm-marker 
-                  [latitude]="markerLat" 
-                  [longitude]="markerLng" 
-                  [markerDraggable]="true"
-                    ></agm-marker>
+                  <agm-marker [latitude]="markerLat" [longitude]="markerLng" [markerDraggable]="true"></agm-marker>
                 </agm-map>
-                
+
                 <!-- <h5>Address: {{address}}</h5>
                 <div>Latitude: {{markerLat}}</div>
                 <div>Longitude: {{markerLng}}</div> -->
-                        
+
                 <!-- <agm-map [latitude]="lat" [longitude]="long" (mapClick)="mapClick($event)"
 									[zoom]="zoom">
 									<agm-marker [latitude]="markerLat" [longitude]="markerLng">
@@ -219,14 +220,21 @@
                     <p class="text-start fs-14 mb-0">กำหนดเวลาที่ใช้</p>
                     <small class="text-start fs-10 text-muted">ระบุเพื่อจะนำไปใช้คำนวนเวลาในการเดินทาง</small>
                     <div class="form-group mt-1">
-                      <input type="time" formControlName="stayTime" class="form-control" placeholder="เวลาที่ใช้" required>
+                      <select class="form-select" aria-label="Default select example" formControlName="stayTime">
+                        <option value="" disabled selected hidden>เวลาที่ใช้</option>
+                        <option *ngFor="let item of stayTime" [value]="item">
+                          {{ item }}
+                        </option>
+                      </select>
+                      <!-- <input type="time" formControlName="stayTime" class="form-control" placeholder="เวลาที่ใช้" required> -->
                     </div>
                   </div>
                 </form>
               </div>
               <div class="col-12 col-sm-6 col-md-6 text-end mt-5">
-                <button type="button" class="btn btn-green-square-full" data-bs-dismiss="modal" (click)="addNewLocation()">เพิ่มจุดเเวะ</button>
-              </div>           
+                <button type="button" class="btn btn-green-square-full" data-bs-dismiss="modal"
+                  (click)="addNewLocation()">เพิ่มจุดเเวะ</button>
+              </div>
             </div>
           </div>
           <div *ngIf="mapSearch == false">
@@ -234,8 +242,9 @@
               <div class="row">
                 <div class="col-12">
                   <div class="form-group mt-2">
-                    <input type="text" class="form-control pac-container"
-                    (keydown.enter)="$event.preventDefault()" placeholder="เพิ่มจุดแวะ" formControlName="map" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #mapView required>
+                    <input type="text" class="form-control pac-container" (keydown.enter)="$event.preventDefault()"
+                      placeholder="เพิ่มจุดแวะ" formControlName="map" autocorrect="off" autocapitalize="off"
+                      spellcheck="off" type="text" #mapView required>
                   </div>
                 </div>
                 <!-- <div class="col-auto">
@@ -243,116 +252,128 @@
                       class="bx bx-search"></i></button>
                 </div> -->
               </div>
-            
-           
-            <div class="mt-5">  
-            <input type="checkbox" class="btn-check" id="btn-check" checked autocomplete="off" />
-            <label style="border-radius: 30px;" class="btn btn-outline-primary me-1" for="btn-check">ทั้งหมด</label>
-            
-            <input type="checkbox" class="btn-check" id="btn-check2"  autocomplete="off" />
-            <label style="border-radius: 30px;" class="btn btn-outline-primary m-1" for="btn-check2">ศูนย์การค้า</label>
-            
-            <input type="checkbox" class="btn-check" id="btn-check3" autocomplete="off" />
-            <label style="border-radius: 30px;" class="btn btn-outline-primary m-1" for="btn-check3">โรงพยาบาล</label>
 
-            <input type="checkbox" class="btn-check" id="btn-check4" autocomplete="off" />
-            <label style="border-radius: 30px;" class="btn btn-outline-primary m-1" for="btn-check4">ร้านกาแฟ</label>
 
-            <input type="checkbox" class="btn-check" id="btn-check5" autocomplete="off" />
-            <label style="border-radius: 30px;" class="btn btn-outline-primary m-1" for="btn-check5">วัด</label>
-          </div>
+              <div class="mt-5">
+                <input type="checkbox" class="btn-check" id="btn-check" checked autocomplete="off" />
+                <label style="border-radius: 30px;" class="btn btn-outline-primary me-1" for="btn-check">ทั้งหมด</label>
 
-          <div class="row mt-3">
-            <div class="col-auto pe-0">
-              <p class="pe-0 mb-0">สถานที่แนะนำ</p>
-              <!-- <agm-info-window>
+                <input type="checkbox" class="btn-check" id="btn-check2" autocomplete="off" />
+                <label style="border-radius: 30px;" class="btn btn-outline-primary m-1"
+                  for="btn-check2">ศูนย์การค้า</label>
+
+                <input type="checkbox" class="btn-check" id="btn-check3" autocomplete="off" />
+                <label style="border-radius: 30px;" class="btn btn-outline-primary m-1"
+                  for="btn-check3">โรงพยาบาล</label>
+
+                <input type="checkbox" class="btn-check" id="btn-check4" autocomplete="off" />
+                <label style="border-radius: 30px;" class="btn btn-outline-primary m-1"
+                  for="btn-check4">ร้านกาแฟ</label>
+
+                <input type="checkbox" class="btn-check" id="btn-check5" autocomplete="off" />
+                <label style="border-radius: 30px;" class="btn btn-outline-primary m-1" for="btn-check5">วัด</label>
+              </div>
+
+              <div class="row mt-3">
+                <div class="col-auto pe-0">
+                  <p class="pe-0 mb-0">สถานที่แนะนำ</p>
+                  <!-- <agm-info-window>
                 {{ location.name }}
               </agm-info-window> -->
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-4 p-1">
-              <div class="card mb-3" style="max-width: 100%;">
-                <div class="row g-0">
-                  <div class="col-md-12 text-center">
-                    <img src="assets/img/st1.png" class="img-fluid rounded-start p-2" alt="...">
-                  </div>
-                  <div class="col-md-12">
-                    <div class="card-body pt-1">
-                      <div class="row">
-                        <div class="col-12">
-                          <p class="fs-16 mb-0">บ้านฉันเอง</p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-4 p-1">
+                  <div class="card mb-3" style="max-width: 100%;">
+                    <div class="row g-0">
+                      <div class="col-md-12 text-center">
+                        <img src="assets/img/st1.png" class="img-fluid rounded-start p-2" alt="...">
+                      </div>
+                      <div class="col-md-12">
+                        <div class="card-body pt-1">
+                          <div class="row">
+                            <div class="col-12">
+                              <p class="fs-16 mb-0">บ้านฉันเอง</p>
+                            </div>
+                          </div>
+                          <div class="col-12">
+                            <p class="card-text fs-12"><small>ห่างจากจุดเริ่มต้น 10 กม.</small>
+                            </p>
+                          </div>
                         </div>
                       </div>
-                      <div class="col-12">
-                        <p class="card-text fs-12"><small>ห่างจากจุดเริ่มต้น 10 กม.</small>
-                        </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-4 p-1">
+                  <div class="card mb-3" style="max-width: 100%;">
+                    <div class="row g-0">
+                      <div class="col-md-12 text-center">
+                        <img src="assets/img/st1.png" class="img-fluid rounded-start p-2" alt="...">
+                      </div>
+                      <div class="col-md-12">
+                        <div class="card-body pt-1">
+                          <div class="row">
+                            <div class="col-12">
+                              <p class="fs-16 mb-0">บ้านฉันเอง</p>
+                            </div>
+                          </div>
+                          <div class="col-12">
+                            <p class="card-text fs-12"><small>ห่างจากจุดเริ่มต้น 10 กม.</small>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-4 p-1">
+                  <div class="card mb-3" style="max-width: 100%;">
+                    <div class="row g-0">
+                      <div class="col-md-12 text-center">
+                        <img src="assets/img/st1.png" class="img-fluid rounded-start p-2" alt="...">
+                      </div>
+                      <div class="col-md-12">
+                        <div class="card-body pt-1">
+                          <div class="row">
+                            <div class="col-12">
+                              <p class="fs-16 mb-0">บ้านฉันเอง</p>
+                            </div>
+                          </div>
+                          <div class="col-12">
+                            <p class="card-text fs-12"><small>ห่างจากจุดเริ่มต้น 10 กม.</small>
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="col-4 p-1">
-              <div class="card mb-3" style="max-width: 100%;">
-                <div class="row g-0">
-                  <div class="col-md-12 text-center">
-                    <img src="assets/img/st1.png" class="img-fluid rounded-start p-2" alt="...">
-                  </div>
-                  <div class="col-md-12">
-                    <div class="card-body pt-1">
-                      <div class="row">
-                        <div class="col-12">
-                          <p class="fs-16 mb-0">บ้านฉันเอง</p>
-                        </div>
-                      </div>
-                      <div class="col-12">
-                        <p class="card-text fs-12"><small>ห่างจากจุดเริ่มต้น 10 กม.</small>
-                        </p>
+              <div class="row mb-3">
+                <div class="col-12 col-sm-6 col-md-6">
+                  <form [formGroup]="mapSetTimeForm">
+                    <div class="col-12">
+                      <p class="text-start fs-14 mb-0">กำหนดเวลาที่ใช้</p>
+                      <small class="text-start fs-10 text-muted">ระบุเพื่อจะนำไปใช้คำนวนเวลาในการเดินทาง</small>
+                      <div class="form-group mt-1">
+                        <select class="form-select" aria-label="Default select example" formControlName="stayTime">
+                          <option value="" disabled selected hidden>เวลาที่ใช้</option>
+                          <option *ngFor="let item of stayTime" [value]="item">
+                            {{ item }}
+                          </option>
+                        </select>
+                        <!-- <input type="time" formControlName="stayTime" class="form-control" placeholder="เวลาที่ใช้" required> -->
                       </div>
                     </div>
-                  </div>
+                  </form>
+                </div>
+                <div class="col-12 col-sm-6 col-md-6 text-end mt-5">
+                  <button type="button" class="btn btn-green-square-full" data-bs-dismiss="modal"
+                    (click)="addNewLocationBySearch()">เพิ่มจุดเเวะ</button>
                 </div>
               </div>
-            </div>
-            <div class="col-4 p-1">
-              <div class="card mb-3" style="max-width: 100%;">
-                <div class="row g-0">
-                  <div class="col-md-12 text-center">
-                    <img src="assets/img/st1.png" class="img-fluid rounded-start p-2" alt="...">
-                  </div>
-                  <div class="col-md-12">
-                    <div class="card-body pt-1">
-                      <div class="row">
-                        <div class="col-12">
-                          <p class="fs-16 mb-0">บ้านฉันเอง</p>
-                        </div>
-                      </div>
-                      <div class="col-12">
-                        <p class="card-text fs-12"><small>ห่างจากจุดเริ่มต้น 10 กม.</small>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-12 col-sm-6 col-md-6">
-                <div class="col-12">
-                  <p class="text-start fs-14 mb-0">กำหนดเวลาที่ใช้</p>
-                  <small class="text-start fs-10 text-muted">ระบุเพื่อจะนำไปใช้คำนวนเวลาในการเดินทาง</small>
-                  <div class="form-group mt-1">
-                    <input type="time" formControlName="stayTime" class="form-control" placeholder="เวลาที่ใช้" required>
-                  </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-6 text-end mt-5">
-              <button type="button" class="btn btn-green-square-full" (click)="addNewLocationBySearch()">เพิ่มจุดเเวะ</button>
-            </div>           
-          </div>
-          </form>
+            </form>
           </div>
         </div>
       </div>
@@ -367,7 +388,7 @@
     <div class="modal-content">
       <div class="modal-body">
         <div class="container-fluid">
-          <div class="row"> 
+          <div class="row">
             <div class="col-6">
               <h1 class="modal-title fs-5" id="exampleModalLabel">บันทึกทริป</h1>
             </div>
@@ -384,13 +405,14 @@
               </div>
             </div>
           </div>
-       
+
           <div class="row mb-3">
             <div class="col-12 col-sm-6 col-md-6">
             </div>
             <div class="col-12 col-sm-6 col-md-6 text-end mt-5">
-              <button type="button" class="btn col-12 btn-green-square-full" data-bs-toggle="modal" data-bs-target="#finish">ยืนยัน</button>
-            </div>           
+              <button type="button" class="btn col-12 btn-green-square-full" data-bs-toggle="modal"
+                data-bs-target="#finish">ยืนยัน</button>
+            </div>
           </div>
         </div>
       </div>
@@ -410,7 +432,7 @@
               <img style="background-size: cover;width: 152px;" src="assets/img/go 1.png" class="d-inline-block" alt="">
             </div>
           </div>
-          <div class="row"> 
+          <div class="row">
             <div class="col-12">
               <h1 class="modal-title text-center fs-5" id="exampleModalLabel">ทริปของคุณถูกสร้างแล้ว</h1>
               <p class="text-sub text-center fs-12">กรุณาเก็บลิ้งค์ของคุณเพื่อใช้ในครั้งถัดไป</p>
@@ -425,14 +447,14 @@
               <p class="text-sub text-center fs-12 mt-2">คุณสามารถเเบ่งปันทริปของคุณให้คนอื่นได้</p>
             </div>
           </div>
-       
+
           <div class="row mb-3 mx-auto mt-3 mb-3">
             <div class="col-12 col-sm-6 col-md-6 text-center">
               <button type="button" class="col-12 btn btn-none-square-full">แชร์เลย</button>
             </div>
             <div class="col-12 col-sm-6 col-md-6 text-center">
               <button type="button" class="col-12 btn btn-green-square-full" data-bs-dismiss="modal">ตกลง</button>
-            </div>           
+            </div>
           </div>
         </div>
       </div>
