@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef, NgZone, Input } from '@angular/core';
-import { CdkDragDrop, moveItemInArray, transferArrayItem, } from '@angular/cdk/drag-drop';
+import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem, } from '@angular/cdk/drag-drop';
 import { GoogleMapsAPIWrapper, MapsAPILoader, Polyline, PolylineOptions, AgmInfoWindow } from '@agm/core';
 import { FormControl, FormBuilder, FormGroup, Validators, FormControlName } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { DataService } from 'src/app/service/data.service';
 import { Router } from '@angular/router';
 
@@ -45,6 +45,8 @@ export class TimelineComponent implements OnInit {
     "7 ชั่วโมง",
     "8 ชั่วโมง",
   ]
+  // routeTravel : Observable<any[]>;
+  routeTravel
   // zoom: number;
   address: string;
   name: string;
@@ -57,28 +59,6 @@ export class TimelineComponent implements OnInit {
   // public sourceElementRef: ElementRef;
   @ViewChild("mapView", { static: false })
   public mapElementRef: ElementRef;
-
-  route = [
-    // {
-    //   nameLocation: "หมู่บ้านพฤกษา13",
-    //   address:"ตำบล คลองสาม อำเภอ คลองหลวง ปทุมธานี",
-    //   lat: 14.0392544,
-    //   lng: 100.6547922,
-    //   time: '',
-    //   availableTime: this.itTime,
-    //   diatance: "9.00Km"
-    // },
-    // {
-    //   nameLocation: "ฟิวเจอร์พาร์ค รังสิต",
-    //   address:"ถนน พหลโยธิน ตำบล ประชาธิปัตย์ อำเภอธัญบุรี ปทุมธานี",
-    //   lat: 13.9891719,
-    //   lng: 100.615883,
-    //   time: '',
-    //   availableTime: this.itTime,
-    //   diatance: "9.00Km"
-    // }
-  ];
-
 
   editDate: boolean = false
   mapSearch: boolean = false
@@ -223,7 +203,6 @@ export class TimelineComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private dataService: DataService,
-    // private gmapsApi: GoogleMapsAPIWrapper
   ) { }
 
 
@@ -231,21 +210,21 @@ export class TimelineComponent implements OnInit {
     this.sendLocation = this.dataService.getData();
     this.dateTime = this.dataService.getTime();
 
-    this.route = this.sendLocation
-    console.log("this.sendLocation", this.sendLocation)
-    console.log("this.dateTime", this.dateTime)
-
-    if (this.route == undefined) {
+    route = this.sendLocation
+    console.log("route", route)
+    if (route == undefined || !route) {
       this.router.navigate([`/home`])
     }
-
-    if (this.route) {
-      this.originMap = { lat: this.route[0].lat, lng: this.route[0].lng };
-      this.destinationMap = { lat: this.route[this.route.length - 1].lat, lng: this.route[this.route.length - 1].lng };
+    this.routeTravel = route
+    console.log("this.routeTravel123",this.routeTravel)
+   
+    this.setRouteLoop()
+    
+    if (route) {
+      this.originMap = { lat: route[0].lat, lng: route[0].lng };
+      this.destinationMap = { lat: route[route.length - 1].lat, lng: route[route.length - 1].lng };
       console.log("Back", this.waypoints)
       this.mapsAPILoader.load().then(() => {
-        // this.setCurrentLocation();
-        // console.log("value",this.setCurrentLocation())
         this.geoCoder = new google.maps.Geocoder;
 
         let autocomplete = new google.maps.places.Autocomplete(this.mapElementRef.nativeElement);
@@ -313,7 +292,7 @@ export class TimelineComponent implements OnInit {
 
   remove(index) {
     console.log(index)
-    this.route.splice(index, 1); 
+    route.splice(index, 1); 
   }
 
   // findNearbyLocations() {
@@ -342,14 +321,13 @@ export class TimelineComponent implements OnInit {
   //   });
   // }
 
-  calculationDistance() {
+
+  calculationDistance(source,destination,index) {
     console.log("Infunc")
     var source, destination;
-            //*********DIRECTIONS AND ROUTE**********************//
-            source = { lat: 13.9891719, lng: 100.615883 };
-            destination = { lat: 13.9685418, lng: 100.633965 };
-
             //*********DISTANCE AND DURATION**********************//
+            console.log("source",source)
+            console.log("destination",destination)
             var service = new google.maps.DistanceMatrixService();
             service.getDistanceMatrix({
                 origins: [source],
@@ -359,18 +337,33 @@ export class TimelineComponent implements OnInit {
                 avoidHighways: false,
                 avoidTolls: false
             }, function (response, status) {
+              
                 if (status == google.maps.DistanceMatrixStatus.OK && response.rows[0].elements[0].status != "ZERO_RESULTS") {
-                    var distance =(response.rows[0].elements[0].distance.value/1000).toFixed(2);
-                    var duration = (response.rows[0].elements[0].duration.value/60).toFixed(0);
-                    var dvDistance = document.getElementById("dvDistance");
-                    var dvDuration = document.getElementById("dvDuration");
-                    dvDistance.innerHTML =  distance+ " km";
-                    dvDuration.innerHTML = duration + " minutes";
+                    var distance = (response.rows[0].elements[0].distance.value/1000).toFixed(2);
+                    var travelTime = (response.rows[0].elements[0].duration.value/60).toFixed(0);
+                    console.log(distance)
+                    console.log(travelTime)
+                    testRoute.push({distance,travelTime})
+                    route[index] = {...route[index],distance,travelTime}
+            
+                    console.log(">>>>>>>>>>>>>>",route)
+                    return {distance,travelTime}
                 } else {
                     alert("Unable to find the distance via road.");
                 }
             });
-           
+          
+  }
+
+  setRouteLoop(){
+    testRoute = []
+    console.log("this.route",route)
+    if(route.length >= 2){
+      for(let i = 0; i < route.length-1; i++) {
+        this.calculationDistance(route[i],route[i+1],i)
+      }
+      console.log("test",testRoute)
+    }
   }
 
   async addNewLocation() {
@@ -389,8 +382,6 @@ export class TimelineComponent implements OnInit {
       const request = {
         location: { lat: lat, lng: lng },
         radius: 500,
-        // type: ['restaurant']
-        // fields: ['name', 'geometry', 'photos']
       };
 
       service.nearbySearch(request, (results, status) => {
@@ -407,9 +398,8 @@ export class TimelineComponent implements OnInit {
               console.log("resultsIn",results[0]);
               this.name = results[0].name
               console.log("name",this.name)
-              // this.imagePlace = results[0].photos[0].getUrl({ 'maxWidth': 110, 'maxHeight': 150 })
               !results[0].photos ? this.imagePlace = '' : this.imagePlace = results[0].photos[0].getUrl({ 'maxWidth': 110, 'maxHeight': 150 })
-              var lastIndex = this.route.length - 1
+              var lastIndex = route.length - 1
               
               let data = {
                 nameLocation: this.name,
@@ -423,7 +413,8 @@ export class TimelineComponent implements OnInit {
                 image: this.imagePlace
               }
               
-              this.route.splice(lastIndex, 0, data)
+              route.splice(lastIndex, 0, data)
+              this.setRouteLoop()
               this.waypointLoop()
             }
           });
@@ -451,8 +442,6 @@ export class TimelineComponent implements OnInit {
       const request = {
         location: { lat: lat, lng: lng },
         radius: 500,
-        // type: ['restaurant']
-        // fields: ['name', 'geometry', 'photos']
       };
 
       service.nearbySearch(request, (results, status) => {
@@ -469,9 +458,8 @@ export class TimelineComponent implements OnInit {
               console.log("resultsIn",results[0]);
               this.name = results[0].name
               console.log("name",this.name)
-              // this.imagePlace = results[0].photos[0].getUrl({ 'maxWidth': 110, 'maxHeight': 150 })
               !results[0].photos ? this.imagePlace = '' : this.imagePlace = results[0].photos[0].getUrl({ 'maxWidth': 110, 'maxHeight': 150 })
-              var lastIndex = this.route.length - 1
+              var lastIndex = route.length - 1
               
               let data = {
                 nameLocation: this.name,
@@ -485,7 +473,8 @@ export class TimelineComponent implements OnInit {
                 image: this.imagePlace
               }
               
-              this.route.splice(lastIndex, 0, data)
+              route.splice(lastIndex, 0, data)
+              this.setRouteLoop()
               this.waypointLoop()
             }
           });
@@ -493,49 +482,8 @@ export class TimelineComponent implements OnInit {
         
       });
     });
-    // var lastIndex = this.route.length - 1
-    // console.log("lastIndex", lastIndex)
-    // let data = {
-    //   nameLocation: this.name,
-    //   address: this.address,
-    //   lat: this.markerLat,
-    //   lng: this.markerLng,
-    //   time: this.mapSetTimeForm.value.stayTime,
-    //   availableTime: this.itTime,
-    //   diatance: this.addDistance,
-    //   image: this.imagePlace
-    // }
-    
-    // this.route.splice(lastIndex, 0, data)
-    // this.waypointLoop()
-    // console.log("route", this.route)
+
   }
-
-  public change(event: any) {
-    console.log("event", event);
-    const legs = event.routes[0].legs;
-    let disTotal = 0;
-    legs.forEach((value: any) => {
-      disTotal += value.distance.value;
-    });
-    console.log(`distance: ${disTotal / 1000}km`);
-  }
-
-  //  addLocation(event: any){
-  //   console.log("this.latNewLocation",this.latNewLocation)
-  //   this.latNewLocation = event.lat
-  //   this.lngNewLocation = event.lng
-  //   console.log("event",event);
-  //  }
-
-
-  // getDirection() {
-  // this.origin = { lat: 14.038323797081812, lng: 100.65489099721118 };
-  // this.destination = { lat: this.markerLat, lng: this.markerLng };
-  // Location within a string
-  // this.origin = 'Taipei Main Station';
-  // this.destination = 'Taiwan Presidential Office';
-  // }
 
   mapClick(e) {
     console.log("event", e.coords)
@@ -543,23 +491,8 @@ export class TimelineComponent implements OnInit {
     this.markerLng = e.coords.lng
 
     this.getAddress(this.markerLat, this.markerLng);
-    // this.getDirection();
-    // this.distance = google.maps.geometry.spherical.computeDistanceBetween(this.origin, this.destination);
-    // console.log("value",this.distance / 1000)
-    // this.distance = this.distance / 1000
+
   }
-
-  // setCurrentLocation() {
-  //   if ('geolocation' in navigator) {
-  //     navigator.geolocation.getCurrentPosition((position) => {
-  //       this.latitude = position.coords.latitude;
-  //       this.longitude = position.coords.longitude;
-  //       this.zoom = 8;
-  //       this.getAddress(this.latitude, this.longitude);
-  //     });
-  //   }
-  // }
-
 
   getAddress(latitude, longitude) {
     this.geoCoder.geocode({ 'location': { lat: latitude, lng: longitude } }, (results, status) => {
@@ -579,6 +512,10 @@ export class TimelineComponent implements OnInit {
     });
   }
 
+  setZeroLastArray(){
+    
+  }
+
   mapChange() {
     this.mapSearch = true
   }
@@ -596,8 +533,12 @@ export class TimelineComponent implements OnInit {
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.route, event.previousIndex, event.currentIndex);
-    console.log("route", this.route)
+    moveItemInArray(route, event.previousIndex, event.currentIndex);
+    this.setRouteLoop()
+    console.log("route", route)
   }
 
 }
+
+let route = []
+let testRoute = []

@@ -34,7 +34,7 @@
         <div class="col-12 col-sm-12 col-md-6">
           <agm-map style="height: 790px;" [latitude]="13.736717" [longitude]="100.523186" [zoom]="zoomInMap">
             <agm-direction [origin]="originMap" [destination]="destinationMap" [renderOptions]="renderOptions"
-              [markerOptions]="markerOptions" [waypoints]="waypoints" (onChange)="change($event)">
+              [markerOptions]="markerOptions" [waypoints]="waypoints">
             </agm-direction>
           </agm-map>
           <!-- <img style="background-size: cover;width: 100%;" src="assets/img/map-mock 1.png" class="d-inline-block"
@@ -42,8 +42,8 @@
         </div>
         <div class="col-12 col-sm-12 col-md-6">
           <hr style="border-top: 2px solid #E6E8E8;" class="mt-0">
-          <!-- <button (click)="calculationDistance()">start</button>
-          <div id="dvDistance"></div>
+          <button (click)="setRouteLoop()">start</button>
+          <!-- <div id="dvDistance"></div>
           <div id="dvDuration"></div> -->
           <div *ngIf="editDate == false" class="row">
             <div class="col-auto">
@@ -71,7 +71,7 @@
             </div>
           </div>
           <div cdkDropList class="example-list pt-1 overflow-me" (cdkDropListDropped)="drop($event)">
-            <div class="example-box" *ngFor="let movie of route; let i = index" cdkDrag>
+            <div class="example-box" *ngFor="let movie of routeTravel; let i = index;" cdkDrag>
               <div class="resume-item">
                 <ng-container *ngIf="movie.availableTime">
                   <p class="time-index">{{movie.availableTime}} น.</p>
