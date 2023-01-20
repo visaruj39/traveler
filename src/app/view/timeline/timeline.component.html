@@ -42,12 +42,9 @@
         </div>
         <div class="col-12 col-sm-12 col-md-6">
           <hr style="border-top: 2px solid #E6E8E8;" class="mt-0">
-          <button (click)="setRouteLoop()">start</button>
-          <!-- <div id="dvDistance"></div>
-          <div id="dvDuration"></div> -->
           <div *ngIf="editDate == false" class="row">
             <div class="col-auto">
-              <p class="text-sub mt-4">เดินทางวันที่ {{dateTime | date: 'dd MMMM yyyy'}}
+              <p class="text-sub mt-4">เดินทางวันที่ {{dateTimeFirst | date: 'dd MMMM yyyy'}}
               </p>
             </div>
             <div class="col-auto ps-0">
@@ -74,22 +71,25 @@
             <div class="example-box" *ngFor="let movie of routeTravel; let i = index;" cdkDrag>
               <div class="resume-item">
                 <ng-container *ngIf="movie.availableTime">
-                  <p class="time-index">{{movie.availableTime}} น.</p>
+                  <p class="time-index">{{movie.availableTime | date: 'HH:mm'}} น.</p>
                 </ng-container>
                 <p class="number-index">{{i+1}}</p>
                 <div class="card mb-3 card-timeline">
-                  <div class="row g-0">
-                    <div class="col-md-3">
-                      <img src="{{movie.image}}" class="img-fluid rounded-start p-2" width="115" height="115" alt="...">
+                    <div class="pe-2" style="position: absolute; right: 5px;">
+                      <span style="cursor: pointer;" (click)="remove(i)" class="text-main fs-20"
+                        aria-hidden="true">&times;</span>
                     </div>
-                    <div class="col-md-9">
+                  <div class="row mt-2">
+                    <div class="col-12 col-md-4" style="width: 150px;height: 150px;">
+                      <ng-container *ngIf="movie.image">
+                        <img style="width: 100%; height: 100%;object-fit: cover;" src="{{movie.image}}" class="img-fluid rounded-start p-2" alt="...">
+                      </ng-container>
+                      <ng-container *ngIf="!movie.image">
+                        <img style="width: 100%; height: 100%;object-fit: cover;" src="../../../assets/img/noImg.png" class="img-fluid rounded-start p-2" alt="...">
+                      </ng-container>
+                    </div>
+                    <div class="col-12 col-md-8">
                       <div class="card-body pt-1">
-                        <div class="row">
-                          <div class="col-12 text-end">
-                            <span style="cursor: pointer;" (click)="remove(i)" class="text-main fs-20"
-                              aria-hidden="true">&times;</span>
-                          </div>
-                        </div>
                         <div class="row">
                           <div class="col-8">
                             <p class="fs-20 mb-0">{{movie.nameLocation}}</p>
@@ -101,7 +101,7 @@
                           </ng-container>
 
                         </div>
-                        <div class="col-8">
+                        <div class="col-12 col-md-8">
                           <p class="card-text"><small>{{movie.address}}</small>
                           </p>
                         </div>
@@ -110,17 +110,17 @@
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-auto">
-                    <ng-container *ngIf="movie.distance">
+                  <ng-container *ngIf="movie.distance || movie.distance != 0">
+                    <div class="col-auto">       
                       <div class="range-card text-white"><i type="solid" class="bx bx-car"></i> {{movie.distance}} กม.</div>
-                    </ng-container>
                   </div>
-                  <div class="col-auto ps-0">
-                    <ng-container *ngIf="movie.travelTime">
+                  </ng-container>
+                  <ng-container *ngIf="movie.travelTime || movie.travelTime != '0'">
+                    <div class="col-auto ps-0">                 
                       <div class="text-main mt-2" style="font-size:10px"><i type="solid" class="bx bx-time"></i>
                         {{movie.travelTime}} นาที</div>
-                    </ng-container>
                   </div>
+                  </ng-container>
                   <div class="col">
                     <hr style="border-top: 2px solid #E6E8E8;">
                   </div>
@@ -163,25 +163,25 @@
             </div>
           </div>
 
-          <div class="row mt-3" *ngIf="mapSearch == false">
+          <ng-container class="row mt-3" *ngIf="mapSearch == false">
             <div class="col-auto pe-0">
               <p class="pe-0 mb-0">ค้นหาสถานที่</p>
             </div>
             <div class="col-auto ps-0">
               <a (click)="mapChange()" class="ps-0">หรือค้นหาจากแผนที่</a>
             </div>
-          </div>
+          </ng-container>
 
-          <div class="row mt-3" *ngIf="mapSearch == true">
+          <ng-container class="row mt-3" *ngIf="mapSearch == true">
             <div class="col-auto pe-0">
               <p class="pe-0 mb-0">ค้นหาสถานที่</p>
             </div>
             <div class="col-auto ps-0">
               <a (click)="searchChange()" class="ps-0">หรือค้นหาจากการเสิร์ช</a>
             </div>
-          </div>
+          </ng-container>
 
-          <div *ngIf="mapSearch == true">
+          <ng-container *ngIf="mapSearch == true">
             <!-- <div class="row">
               <div class="col-12">
                 <div class="form-group mt-2">
@@ -222,11 +222,10 @@
                     <div class="form-group mt-1">
                       <select class="form-select" aria-label="Default select example" formControlName="stayTime">
                         <option value="" disabled selected hidden>เวลาที่ใช้</option>
-                        <option *ngFor="let item of stayTime" [value]="item">
-                          {{ item }}
+                        <option *ngFor="let item of stayTime" [value]="item.id">
+                          {{ item.value }}
                         </option>
                       </select>
-                      <!-- <input type="time" formControlName="stayTime" class="form-control" placeholder="เวลาที่ใช้" required> -->
                     </div>
                   </div>
                 </form>
@@ -236,25 +235,21 @@
                   (click)="addNewLocation()">เพิ่มจุดเเวะ</button>
               </div>
             </div>
-          </div>
-          <div *ngIf="mapSearch == false">
-            <form [formGroup]="searchMap">
+          </ng-container>
+          <ng-container *ngIf="mapSearch == false">
+            <!-- <form [formGroup]="searchMap"> -->
               <div class="row">
                 <div class="col-12">
-                  <div class="form-group mt-2">
-                    <input type="text" class="form-control pac-container" (keydown.enter)="$event.preventDefault()"
-                      placeholder="เพิ่มจุดแวะ" formControlName="map" autocorrect="off" autocapitalize="off"
-                      spellcheck="off" type="text" #mapView required>
-                  </div>
+                    <div class="form-group mt-2">
+                      <input type="text" class="form-control pac-container" (keydown.enter)="$event.preventDefault()"
+                        placeholder="เพิ่มจุดแวะ" autocorrect="off" autocapitalize="off"
+                        spellcheck="off" type="text" #mapView required>
+                    </div>
                 </div>
-                <!-- <div class="col-auto">
-                  <button class="btn btn-green-square mt-3"><i
-                      class="bx bx-search"></i></button>
-                </div> -->
               </div>
-
-
-              <div class="mt-5">
+            <!-- </form> -->
+              
+              <!-- <div class="mt-5">
                 <input type="checkbox" class="btn-check" id="btn-check" checked autocomplete="off" />
                 <label style="border-radius: 30px;" class="btn btn-outline-primary me-1" for="btn-check">ทั้งหมด</label>
 
@@ -272,17 +267,15 @@
 
                 <input type="checkbox" class="btn-check" id="btn-check5" autocomplete="off" />
                 <label style="border-radius: 30px;" class="btn btn-outline-primary m-1" for="btn-check5">วัด</label>
-              </div>
+              </div> -->
 
-              <div class="row mt-3">
+              <!-- <div class="row mt-3">
                 <div class="col-auto pe-0">
                   <p class="pe-0 mb-0">สถานที่แนะนำ</p>
-                  <!-- <agm-info-window>
-                {{ location.name }}
-              </agm-info-window> -->
                 </div>
-              </div>
-              <div class="row">
+              </div> -->
+
+              <!-- <div class="row">
                 <div class="col-4 p-1">
                   <div class="card mb-3" style="max-width: 100%;">
                     <div class="row g-0">
@@ -349,21 +342,20 @@
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="row mb-3">
+              </div> -->
+              <div class="row mb-3 mt-5">
                 <div class="col-12 col-sm-6 col-md-6">
-                  <form [formGroup]="mapSetTimeForm">
+                  <form [formGroup]="mapSetTimeSearchForm">
                     <div class="col-12">
                       <p class="text-start fs-14 mb-0">กำหนดเวลาที่ใช้</p>
                       <small class="text-start fs-10 text-muted">ระบุเพื่อจะนำไปใช้คำนวนเวลาในการเดินทาง</small>
                       <div class="form-group mt-1">
                         <select class="form-select" aria-label="Default select example" formControlName="stayTime">
                           <option value="" disabled selected hidden>เวลาที่ใช้</option>
-                          <option *ngFor="let item of stayTime" [value]="item">
-                            {{ item }}
+                          <option *ngFor="let item of stayTime" [value]="item.id">
+                            {{ item.value }}
                           </option>
                         </select>
-                        <!-- <input type="time" formControlName="stayTime" class="form-control" placeholder="เวลาที่ใช้" required> -->
                       </div>
                     </div>
                   </form>
@@ -373,8 +365,7 @@
                     (click)="addNewLocationBySearch()">เพิ่มจุดเเวะ</button>
                 </div>
               </div>
-            </form>
-          </div>
+          </ng-container>
         </div>
       </div>
     </div>

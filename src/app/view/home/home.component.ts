@@ -48,7 +48,7 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.mapsAPILoader.load().then(() => {
       // this.setCurrentLocation();
-      // console.log("value",this.setCurrentLocation())
+
       this.startGeoCoder = new google.maps.Geocoder;
 
       let autocompleteStart = new google.maps.places.Autocomplete(this.startElementRef.nativeElement);
@@ -62,8 +62,6 @@ export class HomeComponent implements OnInit {
 
           this.latitudeS = place.geometry.location.lat();
           this.longitudeS = place.geometry.location.lng();
-          console.log("this.latitude", this.latitudeS)
-          console.log("this.longitude", this.longitudeS)
           this.getAddressStart(this.latitudeS, this.longitudeS);
           this.zoom = 12;
         });
@@ -72,7 +70,6 @@ export class HomeComponent implements OnInit {
 
     this.mapsAPILoader.load().then(() => {
       // this.setCurrentLocation();
-      // console.log("value",this.setCurrentLocation())
       this.endGeoCoder = new google.maps.Geocoder;
 
       let autocompleteEnd = new google.maps.places.Autocomplete(this.endElementRef.nativeElement);
@@ -86,8 +83,6 @@ export class HomeComponent implements OnInit {
 
           this.latitudeE = place.geometry.location.lat();
           this.longitudeE = place.geometry.location.lng();
-          console.log("this.latitude", this.latitudeE)
-          console.log("this.longitude", this.longitudeE)
           this.getAddressEnd(this.latitudeE, this.longitudeE);
           this.zoom = 12;
         });
@@ -109,7 +104,6 @@ export class HomeComponent implements OnInit {
       if (status === 'OK') {
         if (results[0]) {
           this.zoom = 12;
-          console.log("results[0]", results[0])
           // this.nameStart = results[0].address_components.long_name;
           this.addressStart = results[0].formatted_address;
         } else {
@@ -127,7 +121,7 @@ export class HomeComponent implements OnInit {
       if (status === 'OK') {
         if (results[0]) {
           this.zoom = 12;
-          console.log("results[0]", results[0])
+
           // this.nameEnd = results[0].address_components.long_name;
           this.addressEnd = results[0].formatted_address;
         } else {
@@ -141,17 +135,10 @@ export class HomeComponent implements OnInit {
   }
 
   async calculationDistance() {
-    // console.log("Infunc")
     var source, destination;
             //*********DIRECTIONS AND ROUTE**********************//
-            // console.log("this.latitudeS",this.latitudeS)  
-            // console.log("this.longitudeS",this.longitudeS)  
-            // console.log("this.latitudeE",this.latitudeE)  
-            // console.log("this.longitudeE",this.longitudeE)  
             source = { lat: this.latitudeS, lng: this.longitudeS };
             destination = { lat: this.latitudeE, lng: this.longitudeE };
-            // console.log("source",source)  
-            // console.log("destination",destination)  
             //*********DISTANCE AND DURATION**********************//
             var service = new google.maps.DistanceMatrixService();
             service.getDistanceMatrix({
@@ -164,9 +151,8 @@ export class HomeComponent implements OnInit {
             }, function (response, status) {
                 if (status == google.maps.DistanceMatrixStatus.OK && response.rows[0].elements[0].status != "ZERO_RESULTS") {
                    distance = (response.rows[0].elements[0].distance.value/1000).toFixed(2);
-                   duration = (response.rows[0].elements[0].duration.value/60).toFixed(0); 
-                    // console.log("this.distance",distance)      
-                    // console.log("this.duration",duration)   
+                   duration = (response.rows[0].elements[0].duration.value/60).toFixed(0);  
+                   console.log('duration before ',duration)
                 }
             });
            
@@ -174,7 +160,8 @@ export class HomeComponent implements OnInit {
  
   async sendData() {
     let dataArray = []
-    this.calculationDistance()
+    // await this.calculationDistance()
+
     await this.mapsAPILoader.load().then(() => {
 
       const mapDiv = document.createElement('div');
@@ -205,6 +192,7 @@ export class HomeComponent implements OnInit {
                 this.imagePlaceStart = ''
               }
               // results[0].photos[0] === undefined ? this.imagePlaceStart = '' : this.imagePlaceStart = results[0].photos[0].getUrl({ 'maxWidth': 110, 'maxHeight': 150 })
+              console.log(this.searchMap.value.dateTime)
               let onlyTime = this.searchMap.value.dateTime.slice(11);
               let data = {
                 nameLocation: this.nameStart,
@@ -212,12 +200,11 @@ export class HomeComponent implements OnInit {
                 lat: this.latitudeS,
                 lng: this.longitudeS,
                 time: '', //เวลาที่อยู่สถานที่นั้น
-                availableTime: onlyTime, //เวลามาถึง
-                distance: distance,//ระยะทางที่ใช้
-                travelTime: duration,//เวลาที่ใช้เดินทาง
+                availableTime: this.searchMap.value.dateTime, //เวลามาถึง
+                distance: "",//ระยะทางที่ใช้
+                travelTime: "0",//เวลาที่ใช้เดินทาง
                 image: this.imagePlaceStart
               }
-              console.log("valueData",data)
               dataArray.push(data)
             }
           });
@@ -246,7 +233,7 @@ export class HomeComponent implements OnInit {
                 time: '', //เวลาที่อยู่สถานที่นั้น
                 availableTime: "", //เวลามาถึง
                 distance: "",//ระยะทางที่ใช้
-                travelTime:"",//เวลาที่ใช้เดินทาง
+                travelTime:"0",//เวลาที่ใช้เดินทาง
                 image: this.imagePlaceEnd
               }
               dataArray.push(data)
