@@ -68,7 +68,7 @@
             </div>
           </div>
           <div cdkDropList class="example-list pt-1 overflow-me" (cdkDropListDropped)="drop($event)">
-            <!-- <div *ngIf="routeTravel.lea ==" -->
+            <ng-container *ngIf="routeTravel.length >= 2">
             <div class="example-box" *ngFor="let movie of routeTravel; let i = index;" cdkDrag>
               <div class="resume-item">
                 <ng-container *ngIf="movie.availableTime">
@@ -129,6 +129,7 @@
                 <!-- {{movie}} -->
               </div>
             </div>
+          </ng-container>
           </div>
           <div class="container ps-2 pe-2 ps-sm-5 pe-sm-5 pt-1 mt-4">
             <div class="row mt-5">
