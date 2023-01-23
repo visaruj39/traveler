@@ -246,32 +246,32 @@ export class TimelineComponent implements OnInit {
       this.router.navigate([`/home`])
     }
 
+    this.mapsAPILoader.load().then(() => {
+      this.geoCoder = new google.maps.Geocoder;
+
+      let autocomplete = new google.maps.places.Autocomplete(this.mapElementRef.nativeElement);
+      autocomplete.addListener("place_changed", () => {
+        this.ngZone.run(() => {
+          let place: google.maps.places.PlaceResult = autocomplete.getPlace();
+
+          if (place.geometry === undefined || place.geometry === null) {
+            return;
+          }
+
+          this.latitude = place.geometry.location.lat();
+          this.longitude = place.geometry.location.lng();
+          this.getAddress(this.latitude, this.longitude);
+          this.zoom = 12;
+        });
+      });
+    });
+
+    // this.setTime( route[0].availableTime, route[0].availableTime)
+    this.calculationDistance(route[0], route[1], 0)
     if (route) {
       this.originMap = { lat: route[0].lat, lng: route[0].lng };
       this.destinationMap = { lat: route[route.length - 1].lat, lng: route[route.length - 1].lng };
-      this.mapsAPILoader.load().then(() => {
-        this.geoCoder = new google.maps.Geocoder;
-
-        let autocomplete = new google.maps.places.Autocomplete(this.mapElementRef.nativeElement);
-        autocomplete.addListener("place_changed", () => {
-          this.ngZone.run(() => {
-            let place: google.maps.places.PlaceResult = autocomplete.getPlace();
-
-            if (place.geometry === undefined || place.geometry === null) {
-              return;
-            }
-
-            this.latitude = place.geometry.location.lat();
-            this.longitude = place.geometry.location.lng();
-            this.getAddress(this.latitude, this.longitude);
-            this.zoom = 12;
-          });
-        });
-      });
     }
-
-    // this.setTime( route[0].availableTime, route[0].availableTime)
-    await this.calculationDistance(route[0], route[1], 0)
     this.routeTravel = route
 
     this.setRouteLoop()
@@ -344,9 +344,10 @@ export class TimelineComponent implements OnInit {
   // }
   
   calculationDistance(source, destination, index) {
-    var source, destination;
+    // var source, destination;
     //*********DISTANCE AND DURATION**********************//
-    var service = new google.maps.DistanceMatrixService();
+    let service = new google.maps.DistanceMatrixService();
+    
     service.getDistanceMatrix({
       origins: [source],
       destinations: [destination],
@@ -398,8 +399,8 @@ export class TimelineComponent implements OnInit {
   }
 
   async addNewLocation() {
-    var lat = this.markerLat;
-    var lng = this.markerLng;
+    let lat = this.markerLat;
+    let lng = this.markerLng;
     await this.mapsAPILoader.load().then(() => {
 
       const mapDiv = document.createElement('div');
@@ -418,7 +419,7 @@ export class TimelineComponent implements OnInit {
       service.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
 
-          var request1 = {
+          let request1 = {
             query: this.address,
             fields: ['name', 'geometry', 'photos']
           };
@@ -426,7 +427,7 @@ export class TimelineComponent implements OnInit {
             if (status == google.maps.places.PlacesServiceStatus.OK) {
               this.name = results[0].name
               !results[0].photos ? this.imagePlace = '' : this.imagePlace = results[0].photos[0].getUrl({ 'maxWidth': 110, 'maxHeight': 150 })
-              var lastIndex = route.length - 1
+              let lastIndex = route.length - 1
 
               let data = {
                 nameLocation: this.name,
@@ -453,8 +454,8 @@ export class TimelineComponent implements OnInit {
   }
 
   async addNewLocationBySearch() {
-    var lat = this.latitude;
-    var lng = this.longitude;
+    let lat = this.latitude;
+    let lng = this.longitude;
     await this.mapsAPILoader.load().then(() => {
 
       const mapDiv = document.createElement('div');
@@ -473,7 +474,7 @@ export class TimelineComponent implements OnInit {
       service.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
 
-          var request1 = {
+          let request1 = {
             query: this.address,
             fields: ['name', 'geometry', 'photos']
           };
@@ -481,7 +482,7 @@ export class TimelineComponent implements OnInit {
             if (status == google.maps.places.PlacesServiceStatus.OK) {
               this.name = results[0].name
               !results[0].photos ? this.imagePlace = '' : this.imagePlace = results[0].photos[0].getUrl({ 'maxWidth': 300, 'maxHeight': 300 })
-              var lastIndex = route.length - 1
+              let lastIndex = route.length - 1
 
               let data = {
                 nameLocation: this.name,
@@ -494,7 +495,7 @@ export class TimelineComponent implements OnInit {
                 travelTime: this.travelTime,
                 image: this.imagePlace
               }
-
+              
               route.splice(lastIndex, 0, data)
               this.setRouteLoop()
               this.waypointLoop()
@@ -578,5 +579,4 @@ function setTime(startTime, travelTime, time) {
   }catch(e) {
     console.log(e)
   }
- 
 }

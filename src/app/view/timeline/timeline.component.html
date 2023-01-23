@@ -68,6 +68,7 @@
             </div>
           </div>
           <div cdkDropList class="example-list pt-1 overflow-me" (cdkDropListDropped)="drop($event)">
+            <!-- <div *ngIf="routeTravel.lea ==" -->
             <div class="example-box" *ngFor="let movie of routeTravel; let i = index;" cdkDrag>
               <div class="resume-item">
                 <ng-container *ngIf="movie.availableTime">
@@ -115,7 +116,7 @@
                       <div class="range-card text-white"><i type="solid" class="bx bx-car"></i> {{movie.distance}} กม.</div>
                   </div>
                   </ng-container>
-                  <ng-container *ngIf="movie.travelTime || movie.travelTime != '0'">
+                  <ng-container *ngIf="movie.travelTime && movie.travelTime != '0'">
                     <div class="col-auto ps-0">                 
                       <div class="text-main mt-2" style="font-size:10px"><i type="solid" class="bx bx-time"></i>
                         {{movie.travelTime}} นาที</div>
@@ -237,7 +238,7 @@
             </div>
           </ng-container>
           <ng-container *ngIf="mapSearch == false">
-            <!-- <form [formGroup]="searchMap"> -->
+
               <div class="row">
                 <div class="col-12">
                     <div class="form-group mt-2">
@@ -247,7 +248,6 @@
                     </div>
                 </div>
               </div>
-            <!-- </form> -->
               
               <!-- <div class="mt-5">
                 <input type="checkbox" class="btn-check" id="btn-check" checked autocomplete="off" />
@@ -345,7 +345,7 @@
               </div> -->
               <div class="row mb-3 mt-5">
                 <div class="col-12 col-sm-6 col-md-6">
-                  <form [formGroup]="mapSetTimeSearchForm">
+                  <div [formGroup]="mapSetTimeSearchForm">
                     <div class="col-12">
                       <p class="text-start fs-14 mb-0">กำหนดเวลาที่ใช้</p>
                       <small class="text-start fs-10 text-muted">ระบุเพื่อจะนำไปใช้คำนวนเวลาในการเดินทาง</small>
@@ -358,7 +358,7 @@
                         </select>
                       </div>
                     </div>
-                  </form>
+                  </div>
                 </div>
                 <div class="col-12 col-sm-6 col-md-6 text-end mt-5">
                   <button type="button" class="btn btn-green-square-full" data-bs-dismiss="modal"
