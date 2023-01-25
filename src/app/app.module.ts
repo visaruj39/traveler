@@ -9,6 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { AgmCoreModule } from '@agm/core';
 import { AgmDirectionModule } from 'agm-direction'; 
+import { PipeModule } from './pipe/pipe.module'
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { AgmDirectionModule } from 'agm-direction';
     FormsModule,
     ReactiveFormsModule,
     DragDropModule,
+    PipeModule,
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyB13Cty9mQqYcg4KHr-aefHxSbupuGhGoo',
       libraries: ['places','geometry']

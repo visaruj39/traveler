@@ -68,11 +68,11 @@
             </div>
           </div>
           <div cdkDropList class="example-list pt-1 overflow-me" (cdkDropListDropped)="drop($event)">
-            <ng-container *ngIf="routeTravel.length >= 2">
-            <div class="example-box" *ngFor="let movie of routeTravel; let i = index;" cdkDrag>
+            <!-- <div *ngIf="routeTravel.lea ==" -->
+            <div class="example-box" *ngFor="let movie of route; let i = index;" cdkDrag>
               <div class="resume-item">
                 <ng-container *ngIf="movie.availableTime">
-                  <p class="time-index">{{movie.availableTime | date: 'HH:mm'}} น.</p>
+                  <p class="time-index">{{movie?.availableTime | date: 'HH:mm'}} น.</p>
                 </ng-container>
                 <p class="number-index">{{i+1}}</p>
                 <div class="card mb-3 card-timeline">
@@ -94,13 +94,10 @@
                         <div class="row">
                           <div class="col-8">
                             <p class="fs-20 mb-0">{{movie.nameLocation}}</p>
-                          </div>
-                          <ng-container *ngIf="movie.time != ''">
-                            <div class="col-4 text-end">
-                              <p class="time-card"><span class="text-main">{{movie.time}}</span></p>
+                          </div>                         
+                            <div class="col-4 mt-3 text-end">
+                              <p class="time-card"><span class="text-main">{{movie.time | time}}</span></p>
                             </div>
-                          </ng-container>
-
                         </div>
                         <div class="col-12 col-md-8">
                           <p class="card-text"><small>{{movie.address}}</small>
@@ -129,7 +126,6 @@
                 <!-- {{movie}} -->
               </div>
             </div>
-          </ng-container>
           </div>
           <div class="container ps-2 pe-2 ps-sm-5 pe-sm-5 pt-1 mt-4">
             <div class="row mt-5">
@@ -165,33 +161,25 @@
             </div>
           </div>
 
-          <ng-container class="row mt-3" *ngIf="mapSearch == false">
+          <div class="row mt-3" [hidden]="mapSearch == true">
             <div class="col-auto pe-0">
               <p class="pe-0 mb-0">ค้นหาสถานที่</p>
             </div>
             <div class="col-auto ps-0">
               <a (click)="mapChange()" class="ps-0">หรือค้นหาจากแผนที่</a>
             </div>
-          </ng-container>
+          </div>
 
-          <ng-container class="row mt-3" *ngIf="mapSearch == true">
+          <div class="row mt-3" [hidden]="mapSearch == false">
             <div class="col-auto pe-0">
               <p class="pe-0 mb-0">ค้นหาสถานที่</p>
             </div>
             <div class="col-auto ps-0">
               <a (click)="searchChange()" class="ps-0">หรือค้นหาจากการเสิร์ช</a>
             </div>
-          </ng-container>
+          </div>
 
-          <ng-container *ngIf="mapSearch == true">
-            <!-- <div class="row">
-              <div class="col-12">
-                <div class="form-group mt-2">
-                  <input type="text" class="form-control pac-container"
-                  (keydown.enter)="$event.preventDefault()" placeholder="เพิ่มจุดแวะ" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #search required>
-                </div>
-              </div>
-            </div> -->
+          <div [hidden]="mapSearch == false">
             <div class="row mt-3">
               <div class="col-auto pe-0">
                 <p class="pe-0 mb-0">ปักหมุดสถานที่</p>
@@ -202,10 +190,6 @@
                 <agm-map [latitude]="lat" [longitude]="long" [zoom]="zoomInMap" (mapClick)="mapClick($event)">
                   <agm-marker [latitude]="markerLat" [longitude]="markerLng" [markerDraggable]="true"></agm-marker>
                 </agm-map>
-
-                <!-- <h5>Address: {{address}}</h5>
-                <div>Latitude: {{markerLat}}</div>
-                <div>Longitude: {{markerLng}}</div> -->
 
                 <!-- <agm-map [latitude]="lat" [longitude]="long" (mapClick)="mapClick($event)"
 									[zoom]="zoom">
@@ -237,8 +221,8 @@
                   (click)="addNewLocation()">เพิ่มจุดเเวะ</button>
               </div>
             </div>
-          </ng-container>
-          <ng-container *ngIf="mapSearch == false">
+          </div>
+          <div [hidden]="mapSearch == true">
 
               <div class="row">
                 <div class="col-12">
@@ -366,7 +350,7 @@
                     (click)="addNewLocationBySearch()">เพิ่มจุดเเวะ</button>
                 </div>
               </div>
-          </ng-container>
+            </div>
         </div>
       </div>
     </div>

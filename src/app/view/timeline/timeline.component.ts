@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone, Input } from '@angular/core';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem, } from '@angular/cdk/drag-drop';
 import { GoogleMapsAPIWrapper, MapsAPILoader, Polyline, PolylineOptions, AgmInfoWindow } from '@agm/core';
 import { FormControl, FormBuilder, FormGroup, Validators, FormControlName } from '@angular/forms';
@@ -13,7 +13,8 @@ declare var $;
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.css']
 })
-export class TimelineComponent implements OnInit , AfterViewInit {
+export class TimelineComponent implements OnInit {
+  route = []
   mapSetTimeForm: FormGroup;
   mapSetTimeSearchForm: FormGroup;
   // searchMap: FormGroup;
@@ -73,9 +74,8 @@ export class TimelineComponent implements OnInit , AfterViewInit {
       value: "8 ชั่วโมง"
     }
   ]
-  // routeTravel : Observable<any[]>;
-  route = []
-  routeTravel
+
+ 
   // zoom: number;
   address: string;
   name: string;
@@ -237,74 +237,55 @@ export class TimelineComponent implements OnInit , AfterViewInit {
     private dataService: DataService,
   ) { }
 
-  ngAfterViewInit(): void{
-    let self = this
-    self.mapsAPILoader.load().then(() => {
-      self.geoCoder = new google.maps.Geocoder;
-
-      let autocomplete = new google.maps.places.Autocomplete(self.mapElementRef.nativeElement);
-      autocomplete.addListener("place_changed", () => {
-        self.ngZone.run(() => {
-          let place: google.maps.places.PlaceResult = autocomplete.getPlace();
-
-          if (place.geometry === undefined || place.geometry === null) {
-            return;
-          }
-
-          self.latitude = place.geometry.location.lat();
-          self.longitude = place.geometry.location.lng();
-          self.getAddress(self.latitude, self.longitude);
-          self.zoom = 12;
-        });
-      });
-    });
-  }
 
   async ngOnInit() {
-    let self = this
-    self.sendLocation = self.dataService.getData();
-    self.dateTimeFirst = self.dataService.getTime();
-    self.route = self.sendLocation
-    console.log(self.route)
-    if (self.route == undefined || !self.route) {
-      self.router.navigate([`/home`])
+    console.log(">>>")
+    this.sendLocation = this.dataService.getData();
+    this.dateTimeFirst = this.dataService.getTime();
+    this.route = this.sendLocation
+    console.log(this.route)
+    if (this.route == undefined || !this.route) {
+      this.router.navigate([`/home`])
     }
 
-    self.mapsAPILoader.load().then(() => {
-      self.geoCoder = new google.maps.Geocoder;
+    
 
-      let autocomplete = new google.maps.places.Autocomplete(self.mapElementRef.nativeElement);
+    // this.setTime( this.route[0].availableTime, this.route[0].availableTime)
+    this.calculationDistance(this.route[0], this.route[1], 0)
+    if (this.route) {
+      this.originMap = { lat: this.route[0].lat, lng: this.route[0].lng };
+      this.destinationMap = { lat: this.route[this.route.length - 1].lat, lng: this.route[this.route.length - 1].lng };
+    }
+
+    this.setRouteLoop()
+
+    this.formSetTime()
+    this.formSetTimeSearch()
+    // this.formSearchMap()
+    this.formEditDate()
+    console.log(this.route)
+  }
+
+  ngAfterViewInit() {
+    this.mapsAPILoader.load().then(() => {
+      this.geoCoder = new google.maps.Geocoder;
+      let autocomplete = new google.maps.places.Autocomplete(this.mapElementRef.nativeElement);
       autocomplete.addListener("place_changed", () => {
-        self.ngZone.run(() => {
+        this.ngZone.run(() => {
           let place: google.maps.places.PlaceResult = autocomplete.getPlace();
 
           if (place.geometry === undefined || place.geometry === null) {
             return;
           }
 
-          self.latitude = place.geometry.location.lat();
-          self.longitude = place.geometry.location.lng();
-          self.getAddress(self.latitude, self.longitude);
-          self.zoom = 12;
+          this.latitude = place.geometry.location.lat();
+          this.longitude = place.geometry.location.lng();
+          this.getAddress(this.latitude, this.longitude);
+          this.zoom = 12;
         });
       });
+
     });
-
-    // self.setTime( route[0].availableTime, route[0].availableTime)
-    self.calculationDistance(self.route[0], self.route[1], 0)
-    if (self.route) {
-      self.originMap = { lat: self.route[0].lat, lng: self.route[0].lng };
-      self.destinationMap = { lat: self.route[self.route.length - 1].lat, lng: self.route[self.route.length - 1].lng };
-    }
-    self.routeTravel = self.route
-
-    self.setRouteLoop()
-
-    self.formSetTime()
-    self.formSetTimeSearch()
-    // self.formSearchMap()
-    self.formEditDate()
-    console.log(self.route)
   }
 
   formEditDate() {
@@ -349,6 +330,9 @@ export class TimelineComponent implements OnInit , AfterViewInit {
 
   remove(index) {
     this.route.splice(index, 1);
+    this.switchLocation()
+    this.setRouteLoop()
+    this.setZeroLastArray()
   }
 
   calculationTime(source, destination, index) {
@@ -370,7 +354,6 @@ export class TimelineComponent implements OnInit , AfterViewInit {
   calculationDistance(source, destination, index) {
     // var source, destination;
     //*********DISTANCE AND DURATION**********************//
-    console.log(source, destination)
     let service = new google.maps.DistanceMatrixService();
     let self = this
     service.getDistanceMatrix({
@@ -384,10 +367,12 @@ export class TimelineComponent implements OnInit , AfterViewInit {
       if (status == google.maps.DistanceMatrixStatus.OK && response.rows[0].elements[0].status != "ZERO_RESULTS") {
         let distance = (response.rows[0].elements[0].distance.value / 1000).toFixed(2);
         let travelTime = (response.rows[0].elements[0].duration.value / 60).toFixed(0);
-        self.route[index + 1].availableTime = self.setTime(source.availableTime,  travelTime, parseInt(source.time)|0)
-        // testRoute.push({ distance, travelTime })
+        if(index){
+          self.route[index + 1].availableTime = setTime(source.availableTime,  travelTime, parseInt(source.time)|0)
+        }  
+        testRoute.push({ distance, travelTime })
         self.route[index] = { ...self.route[index], distance, travelTime }
-        console.log(self.route)
+        console.log("self.route",self.route)
         return { distance, travelTime }
       } else {
         alert("Unable to find the distance via road.");
@@ -415,7 +400,8 @@ export class TimelineComponent implements OnInit , AfterViewInit {
   }
 
   setRouteLoop() {
-    // testRoute = []
+    testRoute = []
+    console.log(this.route)
     if (this.route.length >= 2) {
       for (let i = 0; i < this.route.length - 1; i++) {
         this.calculationDistance(this.route[i], this.route[i + 1], i)
@@ -426,7 +412,6 @@ export class TimelineComponent implements OnInit , AfterViewInit {
   async addNewLocation() {
     let lat = this.markerLat;
     let lng = this.markerLng;
-    let self = this
     await this.mapsAPILoader.load().then(() => {
 
       const mapDiv = document.createElement('div');
@@ -453,7 +438,7 @@ export class TimelineComponent implements OnInit , AfterViewInit {
             if (status == google.maps.places.PlacesServiceStatus.OK) {
               this.name = results[0].name
               !results[0].photos ? this.imagePlace = '' : this.imagePlace = results[0].photos[0].getUrl({ 'maxWidth': 110, 'maxHeight': 150 })
-              let lastIndex = self.route.length - 1
+              let lastIndex = this.route.length - 1
 
               let data = {
                 nameLocation: this.name,
@@ -466,8 +451,8 @@ export class TimelineComponent implements OnInit , AfterViewInit {
                 travelTime: this.travelTime,
                 image: this.imagePlace
               }
-
-              self.route.splice(lastIndex, 0, data)
+              
+              this.route.splice(lastIndex, 0, data)
               this.setRouteLoop()
               this.waypointLoop()
             }
@@ -482,9 +467,10 @@ export class TimelineComponent implements OnInit , AfterViewInit {
   async addNewLocationBySearch() {
     let lat = this.latitude;
     let lng = this.longitude;
-    let self = this
-    await self.mapsAPILoader.load().then(() => {
-
+    console.log(">>>>")
+    console.log(this.route)
+    await this.mapsAPILoader.load().then(() => {
+     
       const mapDiv = document.createElement('div');
 
       const map = new google.maps.Map(mapDiv, {
@@ -499,33 +485,34 @@ export class TimelineComponent implements OnInit , AfterViewInit {
       };
 
       service.nearbySearch(request, (results, status) => {
+       
         if (status === google.maps.places.PlacesServiceStatus.OK) {
 
           let request1 = {
-            query: self.address,
+            query: this.address,
             fields: ['name', 'geometry', 'photos']
           };
           service.findPlaceFromQuery(request1, (results, status) => {
             if (status == google.maps.places.PlacesServiceStatus.OK) {
-              self.name = results[0].name
-              !results[0].photos ? self.imagePlace = '' : self.imagePlace = results[0].photos[0].getUrl({ 'maxWidth': 300, 'maxHeight': 300 })
-              let lastIndex = self.route.length - 1
+              this.name = results[0].name
+              !results[0].photos ? this.imagePlace = '' : this.imagePlace = results[0].photos[0].getUrl({ 'maxWidth': 300, 'maxHeight': 300 })
+              let lastIndex = this.route.length - 1
 
               let data = {
-                nameLocation: self.name,
-                address: self.address,
-                lat: self.markerLat,
-                lng: self.markerLng,
-                time: self.mapSetTimeSearchForm.value.stayTime,
+                nameLocation: this.name,
+                address: this.address,
+                lat: this.markerLat,
+                lng: this.markerLng,
+                time: this.mapSetTimeSearchForm.value.stayTime,
                 availableTime: '',
-                distance: self.addDistance,
-                travelTime: self.travelTime,
-                image: self.imagePlace
+                distance: this.addDistance,
+                travelTime: this.travelTime,
+                image: this.imagePlace
               }
               
-              self.route.splice(lastIndex, 0, data)
-              self.setRouteLoop()
-              self.waypointLoop()
+              this.route.splice(lastIndex, 0, data)
+              this.setRouteLoop()
+              this.waypointLoop()
             }
           });
         }
@@ -562,7 +549,7 @@ export class TimelineComponent implements OnInit , AfterViewInit {
   setZeroLastArray() {
     this.route[this.route.length - 1].distance = 0
     this.route[this.route.length - 1].travelTime = 0
-    // route[0].availableTime = this.dateTimeFirst.slice(11)
+    // this.route[0].availableTime = this.dateTimeFirst.slice(11)
     this.route[this.route.length - 1].availableTime = ''
   }
 
@@ -580,7 +567,7 @@ export class TimelineComponent implements OnInit , AfterViewInit {
   saveStartTravel() {
     this.editDate = false
     this.dateTimeFirst = this.editDateTravel.value.date
-    this.route[0].availableTime = this.dateTimeFirst.slice(11)
+    this.route[0].availableTime = this.dateTimeFirst
   }
 
   drop(event: CdkDragDrop<string[]>) {
@@ -592,28 +579,18 @@ export class TimelineComponent implements OnInit , AfterViewInit {
     // this.waypoints = this.loopData
   }
 
-  setTime(startTime, travelTime, time) {
-    try{
-      console.log(startTime, travelTime, time)
-      let aws = moment(startTime).add(travelTime, "minutes").add(time, "minutes").format('YYYY-MM-DDTHH:mm:ss')
-      console.log("aws", aws)
-      return aws;
-    }catch(e) {
-      console.log(e)
-    }
-  }
 }
 
 // let route = []
-// let testRoute = []
+let testRoute = []
 
-// function setTime(startTime, travelTime, time) {
-//   try{
-//     console.log(startTime, travelTime, time)
-//     let aws = moment(startTime).add(travelTime, "minutes").add(time, "minutes").format('YYYY-MM-DDTHH:mm:ss')
-//     console.log("aws", aws)
-//     return aws;
-//   }catch(e) {
-//     console.log(e)
-//   }
-// }
+function setTime(startTime, travelTime, time) {
+  try{
+    // console.log(startTime, travelTime, time)
+    let aws = moment(startTime).add(travelTime, "minutes").add(time, "minutes").format('YYYY-MM-DDTHH:mm:ss')
+    console.log("aws", aws)
+    return aws;
+  }catch(e) {
+    console.log(e)
+  }
+}
