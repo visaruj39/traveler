@@ -96,7 +96,17 @@
                             <p class="fs-20 mb-0">{{movie.nameLocation}}</p>
                           </div>                         
                             <div class="col-4 mt-3 text-end">
-                              <p class="time-card"><span class="text-main">{{movie.time | time}}</span></p>
+                              <form [formGroup]="editTime">
+                                 <div class="form-group mt-1">
+                                <select class="form-select-time" aria-label="Default select example" formControlName="stayTime" (change)="changeStayTime(i)">
+                                  <option value="" disabled selected hidden>{{movie.time | time}}</option>
+                                  <option *ngFor="let item of stayTime" [value]="item.id">
+                                    {{ item.value }}
+                                  </option>
+                                </select>
+                              </div>
+                              </form>
+                              <!-- <p class="time-card"><span class="text-main">{{movie.time | time}}</span></p> -->
                             </div>
                         </div>
                         <div class="col-12 col-md-8">
