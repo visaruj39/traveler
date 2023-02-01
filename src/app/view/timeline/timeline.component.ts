@@ -240,11 +240,9 @@ export class TimelineComponent implements OnInit {
 
 
   async ngOnInit() {
-    console.log(">>>")
     this.sendLocation = this.dataService.getData();
     this.dateTimeFirst = this.dataService.getTime();
     this.route = this.sendLocation
-    console.log(this.route)
     if (this.route == undefined || !this.route) {
       this.router.navigate([`/home`])
     }
@@ -269,7 +267,6 @@ export class TimelineComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    console.log("in init")
     
     this.mapsAPILoader.load().then(() => {
       let self = this
@@ -285,15 +282,12 @@ export class TimelineComponent implements OnInit {
 
           self.latitude = place.geometry.location.lat();
           self.longitude = place.geometry.location.lng();
-          console.log(self.latitude,self.longitude)
           self.getAddress(self.latitude, self.longitude);
           self.zoom = 12;
         });
       });
 
     });
-    console.log("out")
-    console.log("out",this.latitude,this.longitude)
   }
 
   formEditDate() {
@@ -350,25 +344,21 @@ export class TimelineComponent implements OnInit {
   }
 
   changeStayTime(index){
-    console.log("index",index)
     let time = this.editTime.value.stayTime
     this.route[index] = { ...this.route[index], time }
-    console.log("this.route",this.route)
-    console.log("dropdownValue",time)
+    this.setRouteLoop()
   }
 
-  // setTime(startTime, travelTime) {
-  //   try{
-  //     console.log(route)
-  //     let travelTimeTest = 300
-  //     let aws = moment(startTime).add(travelTime, "minutes").format('YYYY-MM-DDTHH:mm:ss')
-  //     console.log("aws", aws)
-  //     return aws;
-  //   }catch(e) {
-  //     console.log(e)
-  //   }
-   
-  // }
+  setTime(startTime, travelTime, time) {
+      try{
+        console.log(startTime, travelTime, time)
+        let aws = moment(startTime).add(travelTime, "minutes").add(time, "minutes").format('YYYY-MM-DDTHH:mm:ss')
+        console.log("aws", aws)
+        return aws;
+      }catch(e) {
+        console.log(e)
+      }
+    }
   
   calculationDistance(source, destination, index) {
     // var source, destination;
@@ -386,11 +376,10 @@ export class TimelineComponent implements OnInit {
       if (status == google.maps.DistanceMatrixStatus.OK && response.rows[0].elements[0].status != "ZERO_RESULTS") {
         let distance = (response.rows[0].elements[0].distance.value / 1000).toFixed(2);
         let travelTime = (response.rows[0].elements[0].duration.value / 60).toFixed(0);
-        console.log("index",index)
-        self.route[index + 1].availableTime = setTime(source.availableTime,  travelTime, parseInt(source.time)|0)
+        console.log("source",source)
+        self.route[index + 1].availableTime = self.setTime(source.availableTime,  travelTime, parseInt(source.time)|0)
         testRoute.push({ distance, travelTime })
         self.route[index] = { ...self.route[index], distance, travelTime }
-        console.log("self.route",self.route)
         return { distance, travelTime }
       } else {
         alert("Unable to find the distance via road.");
@@ -485,7 +474,6 @@ export class TimelineComponent implements OnInit {
   async addNewLocationBySearch() {
     let lat = this.latitude;
     let lng = this.longitude;
-    console.log(">>>>")
     console.log(this.route)
     await this.mapsAPILoader.load().then(() => {
      
@@ -519,8 +507,8 @@ export class TimelineComponent implements OnInit {
               let data = {
                 nameLocation: this.name,
                 address: this.address,
-                lat: this.markerLat,
-                lng: this.markerLng,
+                lat: lat,
+                lng: lng,
                 time: this.mapSetTimeSearchForm.value.stayTime,
                 availableTime: '',
                 distance: this.addDistance,
@@ -603,13 +591,13 @@ export class TimelineComponent implements OnInit {
 // let route = []
 let testRoute = []
 
-function setTime(startTime, travelTime, time) {
-  try{
-    // console.log(startTime, travelTime, time)
-    let aws = moment(startTime).add(travelTime, "minutes").add(time, "minutes").format('YYYY-MM-DDTHH:mm:ss')
-    console.log("aws", aws)
-    return aws;
-  }catch(e) {
-    console.log(e)
-  }
-}
+// function setTime(startTime, travelTime, time) {
+//   try{
+//     // console.log(startTime, travelTime, time)
+//     let aws = moment(startTime).add(travelTime, "minutes").add(time, "minutes").format('YYYY-MM-DDTHH:mm:ss')
+//     console.log("aws", aws)
+//     return aws;
+//   }catch(e) {
+//     console.log(e)
+//   }
+// }
