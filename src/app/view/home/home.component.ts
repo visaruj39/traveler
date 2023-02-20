@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { DataService } from 'src/app/service/data.service';
+import { ViewportScroller } from '@angular/common';
 declare var $;
 
 @Component({
@@ -42,7 +43,8 @@ export class HomeComponent implements OnInit {
     private ngZone: NgZone,
     private formBuilder: FormBuilder,
     private router: Router,
-    private dataService: DataService
+    private dataService: DataService,
+    private viewportScroller: ViewportScroller
   ) { }
 
   ngOnInit() {
@@ -99,6 +101,20 @@ export class HomeComponent implements OnInit {
     })
   }
 
+  onClick(elementId: string): void { 
+    this.viewportScroller.scrollToAnchor(elementId);
+  }
+
+  checkLetGo(){
+    var element1 = <HTMLInputElement>document.getElementById("letGo");
+    if(this.searchMap.value.startMap && this.searchMap.value.endMap && this.searchMap.value.dateTime){
+      element1.removeAttribute("disabled")
+    }
+    else{
+      element1.setAttribute("disabled", "")
+    }
+  }
+
   async getAddressStart(latitude, longitude) {
     this.startGeoCoder.geocode({ 'location': { lat: latitude, lng: longitude } }, (results, status) => {
       if (status === 'OK') {
@@ -152,7 +168,6 @@ export class HomeComponent implements OnInit {
                 if (status == google.maps.DistanceMatrixStatus.OK && response.rows[0].elements[0].status != "ZERO_RESULTS") {
                    distance = (response.rows[0].elements[0].distance.value/1000).toFixed(2);
                    duration = (response.rows[0].elements[0].duration.value/60).toFixed(0);  
-                   console.log('duration before ',duration)
                 }
             });
            
@@ -192,7 +207,6 @@ export class HomeComponent implements OnInit {
                 this.imagePlaceStart = ''
               }
               // results[0].photos[0] === undefined ? this.imagePlaceStart = '' : this.imagePlaceStart = results[0].photos[0].getUrl({ 'maxWidth': 110, 'maxHeight': 150 })
-              console.log(this.searchMap.value.dateTime)
               let onlyTime = this.searchMap.value.dateTime.slice(11);
               let data = {
                 nameLocation: this.nameStart,

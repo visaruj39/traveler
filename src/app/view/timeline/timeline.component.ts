@@ -20,9 +20,7 @@ export class TimelineComponent implements OnInit {
   // searchMap: FormGroup;
   editDateTravel: FormGroup;
   editTime: FormGroup;
-  eTime = new FormGroup({
-    list: new FormArray([])
-  })
+
   sendLocation;
   lat = 13.736717;
   long = 100.523186;
@@ -40,45 +38,105 @@ export class TimelineComponent implements OnInit {
   imagePlace
   loopData = []
   waypointsData = []
+
   stayTime = [
     {
       id: "30",
-      value: "30นาที"
+      value: "30 นาที"
     },
     {
       id: "60",
       value: "1 ชั่วโมง"
     },
     {
+      id: "90",
+      value: "1.30 ชั่วโมง"
+    },
+    {
       id: "120",
       value: "2 ชั่วโมง"
+    },
+    {
+      id: "150",
+      value: "2.30 ชั่วโมง"
     },
     {
       id: "180",
       value: "3 ชั่วโมง"
     },
     {
+      id: "210",
+      value: "3.30 ชั่วโมง"
+    },
+    {
       id: "240",
       value: "4 ชั่วโมง"
+    },
+    {
+      id: "270",
+      value: "4.30 ชั่วโมง"
     },
     {
       id: "300",
       value: "5 ชั่วโมง"
     },
     {
+      id: "330",
+      value: "5.30 ชั่วโมง"
+    },
+    {
       id: "360",
       value: "6 ชั่วโมง"
+    },
+    {
+      id: "390",
+      value: "6.30 ชั่วโมง"
     },
     {
       id: "420",
       value: "7 ชั่วโมง"
     },
     {
+      id: "450",
+      value: "7.30 ชั่วโมง"
+    },
+    {
       id: "480",
       value: "8 ชั่วโมง"
-    }
+    },
+    {
+      id: "510",
+      value: "8.30 ชั่วโมง"
+    },
+    {
+      id: "540",
+      value: "9 ชั่วโมง"
+    },
+    {
+      id: "570",
+      value: "9.30 ชั่วโมง"
+    },
+    {
+      id: "600",
+      value: "10 ชั่วโมง"
+    },
+    {
+      id: "630",
+      value: "10.30 ชั่วโมง"
+    },
+    {
+      id: "660",
+      value: "11 ชั่วโมง"
+    },
+    {
+      id: "690",
+      value: "11.30 ชั่วโมง"
+    },
+    {
+      id: "720",
+      value: "12 ชั่วโมง"
+    },
   ]
-
 
   // zoom: number;
   address: string;
@@ -94,6 +152,7 @@ export class TimelineComponent implements OnInit {
   public mapElementRef: ElementRef;
 
   editDate: boolean = false
+  editName: boolean = false
   mapSearch: boolean = false
 
   public latMap: Number = 14.0392544;
@@ -239,68 +298,96 @@ export class TimelineComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private dataService: DataService,
-  ) { }
+  ) {
+    this.formSetTime()
+    this.formSetTimeSearch()
+    this.formEditDate()
+    this.formEditTime()
+  }
 
 
   async ngOnInit() {
     this.sendLocation = this.dataService.getData();
     this.dateTimeFirst = this.dataService.getTime();
     this.route = this.sendLocation
-    this.addItem("0");
-    this.addItem("0");
-
-    console.log(this.eTime);
-    
     if (this.route == undefined || !this.route) {
       this.router.navigate([`/home`])
     }
 
-
-
     // this.setTime( this.route[0].availableTime, this.route[0].availableTime)
-    this.calculationDistance(this.route[0], this.route[1], 0)
+
     if (this.route) {
+      this.calculationDistance(this.route[0], this.route[1], 0)
+      this.route = this.route.map((res) => {
+        return {
+          ...res,
+          stayTime: this.stayTime,
+          editName: false
+        }
+      })
       this.originMap = { lat: this.route[0].lat, lng: this.route[0].lng };
       this.destinationMap = { lat: this.route[this.route.length - 1].lat, lng: this.route[this.route.length - 1].lng };
+      this.setRouteLoop()
     }
-
-    this.setRouteLoop()
-
-    this.formSetTime()
-    this.formSetTimeSearch()
-    // this.formSearchMap()
-    this.formEditDate()
-    this.formEditTime()
-    console.log(this.route)
   }
 
-  ngAfterViewInit() {
+  async ngAfterViewInit() {
+    if (this.route) {
+      await this.mapsAPILoader.load().then(() => {
+        let self = this
+        self.geoCoder = new google.maps.Geocoder;
+        let autocomplete = new google.maps.places.Autocomplete(self.mapElementRef.nativeElement);
+        autocomplete.addListener("place_changed", () => {
+          self.ngZone.run(() => {
+            let place: google.maps.places.PlaceResult = autocomplete.getPlace();
 
-    this.mapsAPILoader.load().then(() => {
-      let self = this
-      self.geoCoder = new google.maps.Geocoder;
-      let autocomplete = new google.maps.places.Autocomplete(self.mapElementRef.nativeElement);
-      autocomplete.addListener("place_changed", () => {
-        self.ngZone.run(() => {
-          let place: google.maps.places.PlaceResult = autocomplete.getPlace();
+            if (place.geometry === undefined || place.geometry === null) {
+              return;
+            }
 
-          if (place.geometry === undefined || place.geometry === null) {
-            return;
-          }
-
-          self.latitude = place.geometry.location.lat();
-          self.longitude = place.geometry.location.lng();
-          self.getAddress(self.latitude, self.longitude);
-          self.zoom = 12;
+            self.latitude = place.geometry.location.lat();
+            self.longitude = place.geometry.location.lng();
+            self.getAddress(self.latitude, self.longitude);
+            self.zoom = 12;
+          });
         });
+
       });
-
-    });
+    }
   }
 
-  addItem(val) { 
-    (this.eTime.get('list') as FormArray).push(new FormControl(val))
+  checkStay() {
+    var addByPin = <HTMLInputElement>document.getElementById("addByPin");
+    if (this.mapSetTimeForm.value.stayTime) {
+      addByPin.removeAttribute("disabled")
+    }
+    else {
+      addByPin.setAttribute("disabled", "")
+    }
   }
+
+  checkStaySearch() {
+    var addBySearch = <HTMLInputElement>document.getElementById("addBySearch");
+    if (this.mapSetTimeSearchForm.value.stayTime) {
+      addBySearch.removeAttribute("disabled")
+    }
+    else {
+      addBySearch.setAttribute("disabled", "")
+    }
+  }
+
+  setNewValue() {
+    this.mapSetTimeForm.controls['stayTime'].setValue('')
+    this.mapSetTimeSearchForm.controls['stayTime'].setValue('')
+    this.mapSetTimeSearchForm.controls['searchMap'].setValue('')
+    this.markerLat = ''
+    this.markerLng = ''
+  }
+
+  // addItem(val) { 
+  //   (this.eTime.get('list') as FormArray).push(new FormControl(val))
+  // }
+
   formEditDate() {
     this.editDateTravel = this.formBuilder.group({
       date: [this.dateTimeFirst]
@@ -322,16 +409,11 @@ export class TimelineComponent implements OnInit {
 
   formSetTimeSearch() {
     this.mapSetTimeSearchForm = this.formBuilder.group({
+      searchMap: [''],
       stayTime: ['']
     })
   }
 
-  // formSearchMap() {
-  //   this.searchMap = this.formBuilder.group({
-  //     map: [''],
-  //     // stayTime: ['']
-  //   })
-  // }
 
   setStartEndLocation() {
     let start = this.getAddress(this.sendLocation.latS, this.sendLocation.lngS)
@@ -345,7 +427,6 @@ export class TimelineComponent implements OnInit {
 
     this.loopData.push(data)
     this.waypoints = [...this.waypoints, ... this.loopData];
-
   }
 
   remove(index) {
@@ -355,34 +436,19 @@ export class TimelineComponent implements OnInit {
     this.setZeroLastArray()
   }
 
-  // setEducation(educations:Education[]){
-  //   let educationFGs = educations.map(education => this.formBuilder.group(education));
-  //   let educationFormArray = this.formBuilder.array(educationFGs);
-  //   this.editTime.setControl('stayTime', educationFormArray);
-  // }
-  // get academics(): FormArray {
-  //   return this.editTime.get('stayTime') as FormArray;
-  // };
 
-  changeStayTime(index) {
-    console.log("index", index)
-    // this.setEducation(this.staff.education);
-    let time = this.editTime.value[index]
+  changeStayTime(e, index) {
+    let time = e.target.value
     this.route[index] = { ...this.route[index], time }
-    console.log("this.routeChangeStayTime", this.route)
+    // this.route[index].time = time 
     this.setRouteLoop()
   }
 
   setTime(startTime, travelTime, time) {
     try {
-      console.log(startTime, travelTime, time)
       let aws = moment(startTime).add(travelTime, "minutes").add(time, "minutes").format('YYYY-MM-DDTHH:mm:ss')
-      console.log("aws", aws)
-      console.log('---------------------------------');
-
       return aws;
     } catch (e) {
-      console.log(e)
     }
   }
 
@@ -392,7 +458,7 @@ export class TimelineComponent implements OnInit {
     let self = this
     return new Promise(function (resolve, reject) {
       let service = new google.maps.DistanceMatrixService();
-      
+
       service.getDistanceMatrix({
         origins: [source],
         destinations: [destination],
@@ -404,14 +470,11 @@ export class TimelineComponent implements OnInit {
         if (status == google.maps.DistanceMatrixStatus.OK && response.rows[0].elements[0].status != "ZERO_RESULTS") {
           let distance = (response.rows[0].elements[0].distance.value / 1000).toFixed(2);
           let travelTime = (response.rows[0].elements[0].duration.value / 60).toFixed(0);
-          console.log("source",source)
-          console.log("des", destination);
-          
           self.route[index + 1].availableTime = self.setTime(source.availableTime, travelTime, parseInt(source.time) | 0)
           testRoute.push({ distance, travelTime })
           self.route[index] = { ...self.route[index], distance, travelTime }
           // return { distance, travelTime }
-          resolve ({ distance, travelTime })
+          resolve({ distance, travelTime })
         } else {
           alert("Unable to find the distance via road.");
           reject(status);
@@ -440,13 +503,15 @@ export class TimelineComponent implements OnInit {
 
   async setRouteLoop() {
     testRoute = []
-    // console.log(this.route)
     if (this.route.length >= 2) {
       for (let i = 0; i < this.route.length - 1; i++) {
-        console.log("i", i)
         await this.calculationDistance(this.route[i], this.route[i + 1], i)
       }
     }
+  }
+
+  saveTrips(){
+    console.log(this.route)
   }
 
   async addNewLocation() {
@@ -507,7 +572,6 @@ export class TimelineComponent implements OnInit {
   async addNewLocationBySearch() {
     let lat = this.latitude;
     let lng = this.longitude;
-    console.log(this.route)
     await this.mapsAPILoader.load().then(() => {
 
       const mapDiv = document.createElement('div');
@@ -594,15 +658,32 @@ export class TimelineComponent implements OnInit {
 
   mapChange() {
     this.mapSearch = true
+    this.mapSetTimeForm.controls['stayTime'].setValue('')
+    this.mapSetTimeForm.controls['stayTime'].setValue('')
   }
 
   searchChange() {
     this.mapSearch = false
+    this.mapSetTimeForm.controls['stayTime'].setValue('')
+    this.mapSetTimeForm.controls['stayTime'].setValue('')
   }
 
   editStartTravel() {
     this.editDate = true
   }
+
+  editNameTravel(i) {
+    this.route[i].editName = true
+  }
+
+  saveNameLocation(movie, index) {
+    let name = movie.nameLocation
+    // this.dateTimeFirst = this.editDateTravel.value.date
+    this.route[index].nameLocation = name
+    this.setRouteLoop()
+    this.route[index].editName = false
+  }
+
   saveStartTravel() {
     this.editDate = false
     this.dateTimeFirst = this.editDateTravel.value.date
@@ -612,28 +693,13 @@ export class TimelineComponent implements OnInit {
 
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.route, event.previousIndex, event.currentIndex);
-    // console.log("event",event)
     this.route[0].availableTime = this.dateTimeFirst
     this.switchLocation()
-    // this.setTime()
     this.setRouteLoop()
     this.setZeroLastArray()
-    // console.log("dropRoute",this.route)
-    // this.waypoints = this.loopData
   }
 
 }
 
-// let route = []
 let testRoute = []
 
-// function setTime(startTime, travelTime, time) {
-//   try{
-//     // console.log(startTime, travelTime, time)
-//     let aws = moment(startTime).add(travelTime, "minutes").add(time, "minutes").format('YYYY-MM-DDTHH:mm:ss')
-//     console.log("aws", aws)
-//     return aws;
-//   }catch(e) {
-//     console.log(e)
-//   }
-// }
