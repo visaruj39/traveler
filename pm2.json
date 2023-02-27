@@ -1,0 +1,19 @@
+{
+    "apps": [
+        {
+            "name": "travelerOnGit",
+            "script": "./frontend.js",
+            "watch": false,
+            "cwd": "./",
+            "env": {
+                "server": {
+                    "app_host": "0.0.0.0",
+                    "app_port": "80",
+                    "use_https": false,
+                    "key": "ssl/server.key",
+                    "cert": "ssl/server.crt"
+                }
+            }
+        }
+    ]
+}

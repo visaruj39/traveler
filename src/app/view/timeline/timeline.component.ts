@@ -5,8 +5,9 @@ import { FormControl, FormBuilder, FormGroup, FormArray, Validators, FormControl
 import { Observable, of } from 'rxjs';
 import { DataService } from 'src/app/service/data.service';
 import { Router } from '@angular/router';
+import { v4 as uuidv4 } from 'uuid';
 import * as moment from 'moment'
-
+import { UploadService } from '../../service/upload.service'
 declare var $;
 @Component({
   selector: 'app-timeline',
@@ -20,6 +21,7 @@ export class TimelineComponent implements OnInit {
   // searchMap: FormGroup;
   editDateTravel: FormGroup;
   editTime: FormGroup;
+  setNameTrip: FormGroup;
 
   sendLocation;
   lat = 13.736717;
@@ -298,11 +300,13 @@ export class TimelineComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private dataService: DataService,
+    private uploadService: UploadService
   ) {
     this.formSetTime()
     this.formSetTimeSearch()
     this.formEditDate()
     this.formEditTime()
+    this.formNameTrip()
   }
 
 
@@ -388,6 +392,11 @@ export class TimelineComponent implements OnInit {
   //   (this.eTime.get('list') as FormArray).push(new FormControl(val))
   // }
 
+  formNameTrip(){
+    this.setNameTrip = this.formBuilder.group({
+      nameTrip: ['']
+    })
+  }
   formEditDate() {
     this.editDateTravel = this.formBuilder.group({
       date: [this.dateTimeFirst]
@@ -438,8 +447,8 @@ export class TimelineComponent implements OnInit {
 
 
   changeStayTime(e, index) {
-    let time = e.target.value
-    this.route[index] = { ...this.route[index], time }
+    let spendTime = e.target.value
+    this.route[index] = { ...this.route[index], spendTime }
     // this.route[index].time = time 
     this.setRouteLoop()
   }
@@ -470,7 +479,7 @@ export class TimelineComponent implements OnInit {
         if (status == google.maps.DistanceMatrixStatus.OK && response.rows[0].elements[0].status != "ZERO_RESULTS") {
           let distance = (response.rows[0].elements[0].distance.value / 1000).toFixed(2);
           let travelTime = (response.rows[0].elements[0].duration.value / 60).toFixed(0);
-          self.route[index + 1].availableTime = self.setTime(source.availableTime, travelTime, parseInt(source.time) | 0)
+          self.route[index + 1].arrivalTime = self.setTime(source.arrivalTime, travelTime, parseInt(source.spendTime) | 0)
           testRoute.push({ distance, travelTime })
           self.route[index] = { ...self.route[index], distance, travelTime }
           // return { distance, travelTime }
@@ -510,8 +519,43 @@ export class TimelineComponent implements OnInit {
     }
   }
 
-  saveTrips(){
-    console.log(this.route)
+  saveTrips(){   
+    let tripName = this.setNameTrip.value.nameTrip
+    let newRoute = this.route
+    let uuid = uuidv4();
+    console.log("uuid",uuid)
+    newRoute.forEach((res)=> {
+      delete res.stayTime;
+      delete res.editName
+    })
+
+    let data = {
+      "id": uuid,
+      "areaName": tripName,
+      "location": newRoute,
+      "createdAt": new Date(),
+      "updatedAt": null
+    }
+
+    let theJSON = JSON.stringify(data);
+
+      // create a Blob with the JSON data
+    let blob = new Blob([theJSON], { type: "application/json" });
+
+    // create a file object with the Blob
+    let file = new File([blob], tripName + this.dateTimeFirst.substr(0, 10) + ".json", { type: "application/json" });
+    console.log(file)
+    this.uploadService.uploadFile(file);
+    
+    // save the file to the app's filesystem
+    // let fileURL = URL.createObjectURL(file);
+    // console.log(fileURL)
+    // let link = document.createElement("a");
+    // link.href = fileURL;
+    // console.log(link.href)
+    // link.download = tripName + this.dateTimeFirst.substr(0, 10) + ".json";
+    // document.body.appendChild(link);
+    // link.click();
   }
 
   async addNewLocation() {
@@ -550,10 +594,10 @@ export class TimelineComponent implements OnInit {
                 address: this.address,
                 lat: this.markerLat,
                 lng: this.markerLng,
-                time: this.mapSetTimeForm.value.stayTime,
-                availableTime: '',
-                distance: this.addDistance,
-                travelTime: this.travelTime,
+                spendTime: this.mapSetTimeForm.value.stayTime,
+                arrivalTime: '',
+                distanceToNext: this.addDistance,
+                travelTimeToNext: this.travelTime,
                 image: this.imagePlace
               }
 
@@ -606,10 +650,10 @@ export class TimelineComponent implements OnInit {
                 address: this.address,
                 lat: lat,
                 lng: lng,
-                time: this.mapSetTimeSearchForm.value.stayTime,
-                availableTime: '',
-                distance: this.addDistance,
-                travelTime: this.travelTime,
+                spendTime: this.mapSetTimeSearchForm.value.stayTime,
+                arrivalTime: '',
+                distanceToNext: this.addDistance,
+                travelTimeToNext: this.travelTime,
                 image: this.imagePlace
               }
 
@@ -653,7 +697,7 @@ export class TimelineComponent implements OnInit {
     this.route[this.route.length - 1].distance = 0
     this.route[this.route.length - 1].travelTime = 0
     // this.route[0].availableTime = this.dateTimeFirst.slice(11)
-    this.route[this.route.length - 1].availableTime = ''
+    this.route[this.route.length - 1].arrivalTime = ''
   }
 
   mapChange() {
@@ -687,13 +731,13 @@ export class TimelineComponent implements OnInit {
   saveStartTravel() {
     this.editDate = false
     this.dateTimeFirst = this.editDateTravel.value.date
-    this.route[0].availableTime = this.dateTimeFirst
+    this.route[0].arrivalTime = this.dateTimeFirst
     this.setRouteLoop()
   }
 
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.route, event.previousIndex, event.currentIndex);
-    this.route[0].availableTime = this.dateTimeFirst
+    this.route[0].arrivalTime = this.dateTimeFirst
     this.switchLocation()
     this.setRouteLoop()
     this.setZeroLastArray()

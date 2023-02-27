@@ -213,10 +213,10 @@ export class HomeComponent implements OnInit {
                 address: this.addressStart,
                 lat: this.latitudeS,
                 lng: this.longitudeS,
-                time: '', //เวลาที่อยู่สถานที่นั้น
-                availableTime: this.searchMap.value.dateTime, //เวลามาถึง
-                distance: "",//ระยะทางที่ใช้
-                travelTime: "0",//เวลาที่ใช้เดินทาง
+                spendTime: '', //เวลาที่อยู่สถานที่นั้น
+                arrivalTime: this.searchMap.value.dateTime, //เวลามาถึง
+                distanceToNext: "",//ระยะทางที่ใช้
+                travelTimeToNext: "0",//เวลาที่ใช้เดินทาง
                 image: this.imagePlaceStart
               }
               dataArray.push(data)
@@ -244,10 +244,10 @@ export class HomeComponent implements OnInit {
                 address: this.addressEnd,
                 lat: this.latitudeE,
                 lng: this.longitudeE,
-                time: '', //เวลาที่อยู่สถานที่นั้น
-                availableTime: "", //เวลามาถึง
-                distance: "",//ระยะทางที่ใช้
-                travelTime:"0",//เวลาที่ใช้เดินทาง
+                spendTime: '', //เวลาที่อยู่สถานที่นั้น
+                arrivalTime: "", //เวลามาถึง
+                distanceToNext: "",//ระยะทางที่ใช้
+                travelTimeToNext:"0",//เวลาที่ใช้เดินทาง
                 image: this.imagePlaceEnd
               }
               dataArray.push(data)

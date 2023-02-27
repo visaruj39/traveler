@@ -70,8 +70,8 @@
           <div cdkDropList class="example-list pt-1 overflow-me" (cdkDropListDropped)="drop($event)">
             <div class="example-box" *ngFor="let movie of route; let i = index;" cdkDrag>
               <div class="resume-item">
-                <ng-container *ngIf="movie.availableTime">
-                  <p class="time-index">{{movie?.availableTime | date: 'HH:mm'}} น.</p>
+                <ng-container *ngIf="movie.arrivalTime">
+                  <p class="time-index">{{movie?.arrivalTime | date: 'HH:mm'}} น.</p>
                 </ng-container>
                 <p class="number-index">{{i+1}}</p>
                 <div class="card mb-3 card-timeline">
@@ -117,7 +117,7 @@
                             <div class="form-group mt-1">
                               <select class="form-select-time" aria-label="Default select example"
                                 (change)="changeStayTime($event,i)">
-                                <option value="" disabled selected hidden>{{movie.time | time}}</option>
+                                <option value="" disabled selected hidden>{{movie.spendTime | time}}</option>
                                 <option *ngFor="let item of movie.stayTime" [value]="item.id">
                                   {{ item.value }}
                                 </option>
@@ -134,21 +134,23 @@
                   </div>
                 </div>
                 <div class="row">
-                  <ng-container *ngIf="movie.distance || movie.distance != 0">
+                  <ng-container *ngIf="movie.distanceToNext || movie.distanceToNext != 0">
                     <div class="col-auto">
-                      <div class="range-card text-white"><i type="solid" class="bx bx-car"></i> {{movie.distance}} กม.
+                      <div class="range-card text-white"><i type="solid" class="bx bx-car"></i> {{movie.distanceToNext}} กม.
                       </div>
                     </div>
                   </ng-container>
-                  <ng-container *ngIf="movie.travelTime && movie.travelTime != '0'">
+                  <ng-container *ngIf="movie.travelTimeToNext && movie.travelTimeToNext != '0'">
                     <div class="col-auto ps-0">
                       <div class="text-main mt-2" style="font-size:10px"><i type="solid" class="bx bx-time"></i>
-                        {{movie.travelTime}} นาที</div>
+                        {{movie.travelTimeToNext}} นาที</div>
                     </div>
                   </ng-container>
-                  <div class="col">
-                    <hr style="border-top: 2px solid #E6E8E8;">
-                  </div>
+                  <ng-container *ngIf="movie.travelTimeToNext && movie.travelTimeToNext != '0' && movie.distanceToNext || movie.distanceToNext != 0">
+                    <div class="col">
+                      <hr style="border-top: 2px solid #E6E8E8;">
+                    </div>
+                  </ng-container>              
                 </div>
                 <!-- {{movie}} -->
               </div>
@@ -405,20 +407,21 @@
                 aria-label="Close">&times;</span>
             </div>
           </div>
-
-          <div class="row">
-            <div class="col-12">
-              <div class="form-group mt-3">
-                <input type="text" class="form-control" placeholder="ตั้งชื่อทริปของคุณ" required>
+          <form [formGroup]="setNameTrip">
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group mt-3">
+                  <input type="text" class="form-control" formControlName="nameTrip" placeholder="ตั้งชื่อทริปของคุณ" required>
+                </div>
               </div>
             </div>
-          </div>
-
+          </form>
+          
           <div class="row mb-3">
             <div class="col-12 col-sm-6 col-md-6">
             </div>
             <div class="col-12 col-sm-6 col-md-6 text-end mt-5">
-              <button type="button" class="btn col-12 btn-green-square-full" data-bs-toggle="modal"
+              <button type="button" (click)="saveTrips()" class="btn col-12 btn-green-square-full" data-bs-toggle="modal"
                 data-bs-target="#finish">ยืนยัน</button>
             </div>
           </div>
@@ -443,6 +446,7 @@
           <div class="row">
             <div class="col-12">
               <h1 class="modal-title text-center fs-5" id="exampleModalLabel">ทริปของคุณถูกสร้างแล้ว</h1>
+              <!-- <p class="text-sub text-center fs-12">ไฟล์ได้ถูกดาวน์โหลดลงเครื่องของคุณเรียบร้อยแล้ว</p> -->
               <p class="text-sub text-center fs-12">กรุณาเก็บลิ้งค์ของคุณเพื่อใช้ในครั้งถัดไป</p>
             </div>
           </div>
