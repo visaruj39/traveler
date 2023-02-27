@@ -5,8 +5,8 @@
 export const environment = {
   production: false,
   AWS_BUCKET_NAME: "mytravelerlocation",
-  AWS_ACCESS_KEY_ID: "AKIA4DFJ4S2JEDENGUNY",
-  AWS_SECRET_ACCESS_KEY: "AKIA4DFJ4S2JEDENGUNY",
+  AWS_ACCESS_KEY_ID: "AKIA4DFJ4S2JLR7YIFNF",
+  AWS_SECRET_ACCESS_KEY: "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",
   AWS_REGION: "ap-northeast-1"
 };
 
